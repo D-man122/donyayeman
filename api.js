@@ -485,7 +485,18 @@
       }
     };
 
-    return { mode: 'local', auth: auth, items: items, shelves: shelves, site: site, media: media, data: data };
+    // جستجوی کاربران (فقط فیلدهای عمومی؛ ایمیل هرگز برنمی‌گرده)
+    var users = {
+      async search(q) {
+        var n = function (s) { return String(s || '').toLowerCase().replace(/ي/g, 'ی').replace(/ك/g, 'ک').replace(/\u200c/g, ''); };
+        var k = n(q).replace(/^@/, '').trim();
+        if (!k) return [];
+        return read('users', []).filter(function (u) { return n(u.username).indexOf(k) >= 0 || n(u.name).indexOf(k) >= 0; })
+          .slice(0, 20).map(function (u) { return { id: u.id, name: u.name, username: u.username || '', role: roleOf(u) }; });
+      }
+    };
+
+    return { mode: 'local', auth: auth, users: users, items: items, shelves: shelves, site: site, media: media, data: data };
   })();
 
   /* ----------------------------- حالت remote -----------------------------
@@ -495,6 +506,7 @@
                                       (سرور باید role رو فقط 'admin' کنه وقتی username === 'gh_mir')
        POST   /api/auth/login    {email,password}      -> { user }   خطا: { error: 'bad_credentials' }
        POST   /api/auth/logout                          -> {}
+       GET    /api/users?q=متن                          -> { users: [{id,name,username,role}] }   جستجوی کاربران؛ فقط فیلدهای عمومی (هرگز ایمیل)، حداکثر ۲۰ مورد
        GET    /api/items?cat=movies&fresh=1             -> { items: [Item] }
        POST   /api/items          Item(بدون id)         -> { item }   فقط مدیر
        PUT    /api/items/:id      Item                  -> { item }   فقط مدیر
@@ -559,6 +571,9 @@
           return r.shelf;
         },
         async remove(id) { await req('DELETE', '/api/shelves/' + encodeURIComponent(id)); }
+      },
+      users: {
+        async search(q) { return (await req('GET', '/api/users?q=' + encodeURIComponent(q))).users || []; }
       },
       site: {
         async get() { return (await req('GET', '/api/site')).site; },

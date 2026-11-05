@@ -89,6 +89,16 @@
   "بازی": "Games",
   "خدمات": "Services",
   "آموزش‌ها": "Tutorials",
+  "نمایش همه": "Show all",
+  "کاربران": "Users",
+  "جستجو در سایت...": "Search the site...",
+  "املای دیگه‌ای امتحان کن یا نوع جستجو رو عوض کن.": "Try another spelling or switch the search type.",
+  "جستجوی کاربران": "Search users",
+  "نام یا آیدی کاربر رو بنویس.": "Type a user's name or ID.",
+  "کاربری پیدا نشد": "No users found",
+  "آیدی رو بدون فاصله و با حروف انگلیسی امتحان کن.": "Try the ID in English letters, without spaces.",
+  "هنوز چیزی اضافه نشده": "Nothing added yet",
+  "درباره‌ی من": "About me",
   "سرگرمی": "Entertainment",
   "دسته‌بندی": "Categories",
   "منوی اصلی": "Main menu",
@@ -268,55 +278,169 @@
     if (typeof rerender === 'function') rerender();
   });
 
-  // جستجوی ساده بین بخش‌های همین صفحه
-  document.getElementById('searchForm').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const q = document.getElementById('q').value.trim();
-    document.querySelectorAll('.hit').forEach(el => el.classList.remove('hit'));
-    if (!q) return;
-    const found = [...document.querySelectorAll('main section')]
-      .find(s => (s.textContent + ' ' + (s.dataset.s || '')).toLowerCase().includes(q.toLowerCase()));
-    if (found) {
-      found.scrollIntoView({ behavior: 'smooth' });
-      found.classList.add('hit');
-      setTimeout(() => found.classList.remove('hit'), 2500);
-    } else {
-      document.getElementById('q').placeholder = tr('چیزی پیدا نشد');
-    }
-  });
-
-
-
-  // جستجوی جمع‌شونده: اول فقط آیکون، با کلیک نوار باز می‌شه
-  const searchForm = document.getElementById('searchForm');
-  const sGo = searchForm.querySelector('.s-go');
-  const setSearch = (open) => {
-    searchForm.classList.toggle('open', open);
-    sGo.setAttribute('aria-expanded', String(open));
-  };
-  sGo.addEventListener('click', (e) => {
-    if (searchForm.classList.contains('open')) return;
-    e.preventDefault();
-    setSearch(true);
-    document.getElementById('q').focus();
-  });
-  document.addEventListener('click', (e) => {
-    if (searchForm.classList.contains('open') && !e.target.closest('#searchForm')) setSearch(false);
-  });
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && searchForm.classList.contains('open')) { setSearch(false); sGo.focus(); }
-  });
-
-  // دکمه پاک کردن جستجو
+  // ==================== جستجوی سراسری ====================
+  // پنجره‌ی بالای صفحه: نوار دسته‌ها (کاربران، فیلم، سریال، …، بخش‌های سایت) و زیرش لیست نتایج
+  const spPanel = document.getElementById('searchPanel');
+  const spOverlay = document.getElementById('spOverlay');
+  const spTabs = document.getElementById('spTabs');
+  const spBody = document.getElementById('spBody');
+  const searchBtn = document.getElementById('searchBtn');
   const qInput = document.getElementById('q');
   const clearQ = document.getElementById('clearQ');
-  qInput.addEventListener('input', () => { clearQ.hidden = !qInput.value; });
-  clearQ.addEventListener('click', () => {
-    qInput.value = ''; clearQ.hidden = true;
-    qInput.placeholder = tr('جستجو...');
-    document.querySelectorAll('.hit').forEach(el => el.classList.remove('hit'));
-    qInput.focus();
+  const SP_CATS = ['movies', 'series', 'animations', 'anime', 'games', 'music', 'apps'];
+  const SP_ALL_CATS = SP_CATS.concat(['services', 'tutorials']);
+  let spTab = 'all', spUsers = [], spSeq = 0, spTimer = 0;
+  const ICON_SEC = '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg>';
+  const ICON_NONE = '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4-4M8.5 11h5"/></svg>';
+
+  // یکدست کردن متن فارسی/عربی برای جستجو (ی/ک عربی، نیم‌فاصله، اعراب، رقم فارسی)
+  const nz = (s) => String(s == null ? '' : s).toLowerCase()
+    .replace(/[يى]/g, 'ی').replace(/ك/g, 'ک').replace(/[‌‏ً-ٟـ]/g, '')
+    .replace(/[۰-۹]/g, (d) => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[٠-٩]/g, (d) => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
+
+  const siteSections = () => [
+    { fa: 'تازه‌ها', href: '#fresh', kw: 'new latest جدید' },
+    { fa: 'دسته‌بندی‌ها', href: '#cats', kw: 'categories' },
+    { fa: 'درباره‌ی من', href: '#about', kw: 'about معرفی' },
+    { fa: 'تماس با من', href: '#contact', kw: 'contact ایمیل تلگرام اینستاگرام' }
+  ].concat(SP_ALL_CATS.map((k) => ({ fa: CATS[k].fa, href: '#/c/' + k, sub: CATS[k].sub, cat: k })))
+    .concat([{ fa: 'ورود', href: 'account.html#login', kw: 'login sign in حساب' }, { fa: 'ثبت‌نام', href: 'account.html#signup', kw: 'register sign up حساب' }]);
+
+  const spMatch = (it, tokens) => {
+    const c = CATS[it.cat] || {};
+    const hay = nz([it.title, it.titleEn, it.artist, it.genre, it.country, it.year, it.desc, c.fa, c.tag].join(' '));
+    return tokens.every((t) => hay.includes(t));
+  };
+  const spScore = (it, k) => { const t = nz(it.title); return t === k ? 0 : t.startsWith(k) ? 1 : t.includes(k) ? 2 : 3; };
+
+  function spItemRow(it) {
+    const c = CATS[it.cat] || CATS.movies;
+    const th = el('span', { class: 'sp-th ' + (it.cover ? '' : c.cls), html: it.cover ? '' : catIcon(it.cat) });
+    if (it.cover) th.append(el('img', { src: it.cover, alt: '', loading: 'lazy' }));
+    const sub = [tr(c.tag), it.artist, it.year, it.genre ? tr(it.genre) : ''].filter(Boolean).join(' · ');
+    return el('button', { type: 'button', class: 'sp-row', onclick: () => { closeSearch(false); showDetail(it); } },
+      th, el('span', { class: 'sp-t' }, el('b', {}, it.title), el('small', {}, sub)));
+  }
+  function spSecRow(s) {
+    const th = el('span', { class: 'sp-th ' + (s.cat ? CATS[s.cat].cls : 't-series'), html: s.cat ? catIcon(s.cat) : ICON_SEC });
+    return el('a', { class: 'sp-row', href: s.href, onclick: () => closeSearch(false) },
+      th, el('span', { class: 'sp-t' }, el('b', {}, tr(s.fa)), s.sub ? el('small', {}, tr(s.sub)) : null));
+  }
+  function spUserRow(u) {
+    const ch = ((u.name || u.username || '?').trim()[0] || '?').toUpperCase();
+    return el('div', { class: 'sp-row', style: 'cursor:default' },
+      el('span', { class: 'sp-th sp-av' }, ch),
+      el('span', { class: 'sp-t' }, el('b', {}, u.name || u.username), el('small', { dir: 'ltr' }, '@' + u.username)),
+      u.role === 'admin' ? el('span', { class: 'sp-badge' }, tr('مدیر')) : null);
+  }
+  const spHead = (title, onMore, n) => el('div', { class: 'sp-h' }, el('span', {}, title),
+    onMore ? el('button', { type: 'button', class: 'sp-more', onclick: onMore }, tr('نمایش همه') + (n ? ' (' + n.toLocaleString(lang === 'en' ? 'en-US' : 'fa-IR') + ')' : '')) : null);
+  const spEmpty = (title, hint) => el('div', { class: 'sp-empty' }, el('div', { html: ICON_NONE }), el('b', {}, title), el('span', {}, hint || ''));
+
+  function renderSearch() {
+    const raw = qInput.value.trim();
+    const k = nz(raw).replace(/^@/, '').trim();
+    const tokens = k.split(/\s+/).filter(Boolean);
+    clearQ.hidden = !qInput.value;
+    document.getElementById('spClose').hidden = !!qInput.value;
+
+    const items = state.items.slice();
+    const pool = tokens.length ? items.filter((it) => spMatch(it, tokens)).sort((a, b) => spScore(a, k) - spScore(b, k))
+      : items.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    const group = (cat) => pool.filter((it) => it.cat === cat);
+    const secs = siteSections().filter((s) => !tokens.length || tokens.every((t) => nz(s.fa + ' ' + (s.kw || '') + ' ' + (s.sub || '')).includes(t)));
+    const users = tokens.length ? spUsers : [];
+    const counts = { all: users.length + pool.length + secs.length, users: users.length, sections: secs.length };
+    SP_CATS.forEach((c) => { counts[c] = group(c).length; });
+
+    // نوار دسته‌ها
+    const tabs = [['all', 'همه'], ['users', 'کاربران']].concat(SP_CATS.map((c) => [c, CATS[c].fa])).concat([['sections', 'بخش‌های سایت']]);
+    spTabs.replaceChildren(...tabs.map(([key, fa]) => {
+      const b = el('button', { type: 'button', class: 'sp-tab', role: 'tab', 'aria-selected': String(spTab === key), onclick: () => { spTab = key; renderSearch(); } },
+        tr(fa), tokens.length ? el('i', {}, counts[key].toLocaleString(lang === 'en' ? 'en-US' : 'fa-IR')) : null);
+      return b;
+    }));
+    const sel = spTabs.querySelector('[aria-selected="true"]');
+    if (sel && sel.scrollIntoView) { try { sel.scrollIntoView({ block: 'nearest', inline: 'center' }); } catch (e) { /* مهم نیست */ } }
+
+    const out = [];
+    const goTab = (key) => () => { spTab = key; renderSearch(); spBody.scrollTop = 0; };
+    if (spTab === 'all') {
+      if (!tokens.length) {
+        const fresh = pool.slice(0, 5);
+        if (fresh.length) { out.push(spHead(tr('تازه‌ها'))); fresh.forEach((it) => out.push(spItemRow(it))); }
+        out.push(spHead(tr('بخش‌های سایت'))); secs.slice(0, 8).forEach((s) => out.push(spSecRow(s)));
+      } else {
+        if (users.length) { out.push(spHead(tr('کاربران'), users.length > 4 ? goTab('users') : null, users.length)); users.slice(0, 4).forEach((u) => out.push(spUserRow(u))); }
+        SP_ALL_CATS.forEach((c) => {
+          const g = group(c);
+          if (!g.length) return;
+          out.push(spHead(tr(CATS[c].fa), g.length > 4 && SP_CATS.includes(c) ? goTab(c) : null, g.length));
+          g.slice(0, 4).forEach((it) => out.push(spItemRow(it)));
+        });
+        if (secs.length) { out.push(spHead(tr('بخش‌های سایت'), secs.length > 4 ? goTab('sections') : null, secs.length)); secs.slice(0, 4).forEach((s) => out.push(spSecRow(s))); }
+        if (!counts.all) out.push(spEmpty(tr('چیزی پیدا نشد'), tr('املای دیگه‌ای امتحان کن یا نوع جستجو رو عوض کن.')));
+      }
+    } else if (spTab === 'users') {
+      if (!tokens.length) out.push(spEmpty(tr('جستجوی کاربران'), tr('نام یا آیدی کاربر رو بنویس.')));
+      else if (!users.length) out.push(spEmpty(tr('کاربری پیدا نشد'), tr('آیدی رو بدون فاصله و با حروف انگلیسی امتحان کن.')));
+      else users.forEach((u) => out.push(spUserRow(u)));
+    } else if (spTab === 'sections') {
+      if (!secs.length) out.push(spEmpty(tr('چیزی پیدا نشد'), tr('املای دیگه‌ای امتحان کن یا نوع جستجو رو عوض کن.')));
+      else secs.forEach((s) => out.push(spSecRow(s)));
+    } else {
+      const g = group(spTab);
+      if (!g.length) out.push(spEmpty(tokens.length ? tr('چیزی پیدا نشد') : tr('هنوز چیزی اضافه نشده'), tokens.length ? tr('املای دیگه‌ای امتحان کن یا نوع جستجو رو عوض کن.') : ''));
+      else g.slice(0, 60).forEach((it) => out.push(spItemRow(it)));
+    }
+    spBody.replaceChildren(...out);
+  }
+
+  function spFetchUsers() {
+    clearTimeout(spTimer);
+    const raw = qInput.value.trim();
+    if (!raw || !window.Api || !Api.users) { spUsers = []; return; }
+    const seq = ++spSeq;
+    spTimer = setTimeout(async () => {
+      let r = [];
+      try { r = await Api.users.search(raw); } catch (e) { r = []; }
+      if (seq !== spSeq) return;
+      spUsers = r;
+      if (spPanel.classList.contains('open')) renderSearch();
+    }, 180);
+  }
+
+  function openSearch() {
+    closeSheets();
+    if (drawer.classList.contains('open')) setDrawer(false);
+    if (chat.classList.contains('open')) closeChat();
+    spPanel.classList.add('open'); spOverlay.classList.add('open');
+    spPanel.setAttribute('aria-hidden', 'false');
+    searchBtn.setAttribute('aria-expanded', 'true');
+    document.body.classList.add('lock');
+    qInput.placeholder = tr('جستجو در سایت...');
+    renderSearch();
+    setTimeout(() => qInput.focus(), 60);
+  }
+  function closeSearch(focusBtn) {
+    if (!spPanel.classList.contains('open')) return;
+    spPanel.classList.remove('open'); spOverlay.classList.remove('open');
+    spPanel.setAttribute('aria-hidden', 'true');
+    searchBtn.setAttribute('aria-expanded', 'false');
+    document.body.classList.remove('lock');
+    if (focusBtn !== false) searchBtn.focus();
+  }
+  searchBtn.addEventListener('click', () => (spPanel.classList.contains('open') ? closeSearch() : openSearch()));
+  spOverlay.addEventListener('click', () => closeSearch());
+  document.getElementById('spClose').addEventListener('click', () => closeSearch());
+  qInput.addEventListener('input', () => { spFetchUsers(); renderSearch(); });
+  clearQ.addEventListener('click', () => { qInput.value = ''; spUsers = []; spSeq++; renderSearch(); qInput.focus(); });
+  document.getElementById('searchForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const first = spBody.querySelector('button.sp-row, a.sp-row');
+    if (first) first.click();
   });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && spPanel.classList.contains('open')) closeSearch(); });
 
   // نوار پایین: خدمات، آموزش‌ها و سرگرمی (منوی بازشو)، دستیار و بازی (صفحه‌ی مستقیم)
   const bbItems = [...document.querySelectorAll('.bb-item')];
@@ -391,6 +515,7 @@
   const scrollChat = () => { chatBody.scrollTop = chatBody.scrollHeight; };
 
   function openChat() {
+    closeSearch(false);
     chat.classList.add('open');
     chat.setAttribute('aria-hidden', 'false');
     setTimeout(() => chatInput.focus(), 320);
@@ -561,6 +686,7 @@
   const overlay = document.getElementById('overlay');
   const closeBtn = document.getElementById('closeDrawer');
   const setDrawer = (open) => {
+    if (open) closeSearch(false);
     drawer.classList.toggle('open', open);
     overlay.classList.toggle('open', open);
     document.body.classList.toggle('lock', open);
