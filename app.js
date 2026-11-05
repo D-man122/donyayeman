@@ -90,6 +90,7 @@
   "خدمات": "Services",
   "آموزش‌ها": "Tutorials",
   "سرگرمی": "Entertainment",
+  "دسته‌بندی": "Categories",
   "منوی اصلی": "Main menu",
   "سایت آماده": "Ready-made websites",
   "اشتراک برنامه‌ها": "App subscriptions",
@@ -286,6 +287,26 @@
 
 
 
+  // جستجوی جمع‌شونده: اول فقط آیکون، با کلیک نوار باز می‌شه
+  const searchForm = document.getElementById('searchForm');
+  const sGo = searchForm.querySelector('.s-go');
+  const setSearch = (open) => {
+    searchForm.classList.toggle('open', open);
+    sGo.setAttribute('aria-expanded', String(open));
+  };
+  sGo.addEventListener('click', (e) => {
+    if (searchForm.classList.contains('open')) return;
+    e.preventDefault();
+    setSearch(true);
+    document.getElementById('q').focus();
+  });
+  document.addEventListener('click', (e) => {
+    if (searchForm.classList.contains('open') && !e.target.closest('#searchForm')) setSearch(false);
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && searchForm.classList.contains('open')) { setSearch(false); sGo.focus(); }
+  });
+
   // دکمه پاک کردن جستجو
   const qInput = document.getElementById('q');
   const clearQ = document.getElementById('clearQ');
@@ -372,14 +393,12 @@
   function openChat() {
     chat.classList.add('open');
     chat.setAttribute('aria-hidden', 'false');
-    document.body.classList.add('lock');
     setTimeout(() => chatInput.focus(), 320);
     scrollChat();
   }
   function closeChat() {
     chat.classList.remove('open');
     chat.setAttribute('aria-hidden', 'true');
-    document.body.classList.remove('lock');
     setAddMenu(false);
     aiBtn.focus();
   }
