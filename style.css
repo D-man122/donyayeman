@@ -1046,3 +1046,45 @@
     background-repeat: repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat; }
   #s-search { width: 100%; min-height: 46px; padding: 0 14px; margin-bottom: 8px; border: 1.5px solid var(--line); border-radius: 12px; background: var(--card); color: var(--ink); font: inherit; font-size: 15px; }
   #s-search:focus-visible { outline: 3px solid var(--gold); outline-offset: 1px; }
+
+/* ==========================================================================
+   دسکتاپ (۱۰۲۴ پیکسل به بالا) — فقط روی صفحه‌ی بزرگ اثر داره؛ موبایل و تبلت دست‌نخورده‌ان
+   ========================================================================== */
+@media (min-width: 1024px) {
+  :root { --bb-h: 82px; }
+
+  /* هدر هم‌تراز با محتوا */
+  .topbar { padding-inline: max(16px, calc((100% - 1160px) / 2 + 20px)); }
+
+  /* عرض محتوا */
+  main section, #catView, .f-wrap { max-width: 1160px; }
+  #movieView { max-width: 960px; }
+
+  /* قهرمان صفحه */
+  .hero { padding: 84px 22px 120px; }
+  .hero p { max-width: 560px; font-size: 19px; }
+
+  /* دسته‌بندی‌ها: ۴ ستون؛ کاشی آخر دو ستون می‌گیره تا ردیف پر بشه */
+  .tiles { grid-template-columns: repeat(4, 1fr); gap: 18px; }
+  .tile { min-height: 140px; padding: 20px; }
+  .tile:last-child:nth-child(odd) { grid-column: auto; min-height: 140px; }
+  .tile:last-child:nth-child(4n + 3) { grid-column: span 2; }
+
+  /* شبکه‌ی فیلم‌ها و پوسترها */
+  .grid { grid-template-columns: repeat(auto-fill, minmax(176px, 1fr)); gap: 22px 18px; }
+  .mgrid { grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 18px; }
+  .inf-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+
+  /* نوار پایین: شناور و جمع‌وجور وسط صفحه */
+  .bottombar {
+    left: 50%; right: auto; width: 640px; transform: translateX(-50%);
+    bottom: 14px; padding-inline: 8px; border-radius: 24px; border: 1px solid #fff;
+  }
+
+  /* فوتر: بخش‌ها کنار هم */
+  .f-wrap { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px 32px; }
+  .f-brand, .f-copy { grid-column: 1 / -1; }
+  .f-links { grid-template-columns: 1fr; }
+  /* نوار کپی‌رایت تا لبه‌های صفحه کشیده بشه */
+  .f-copy { margin: 34px 0 0; box-shadow: 0 0 0 100vmax #000; clip-path: inset(0 -100vmax); padding-bottom: calc(18px + var(--bb-h)) !important; }
+}
