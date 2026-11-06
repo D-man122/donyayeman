@@ -1203,3 +1203,9 @@
 .sp-empty b { display: block; color: var(--ink); font-size: 16px; margin-bottom: 2px; }
 @media (min-width: 1024px) { .sp { top: 74px; } }
 @media (prefers-reduced-motion: reduce) { .sp, .sp-overlay { transition: none; } }
+
+/* کیبورد باز یا صفحه‌ی کوتاه (مثل گوشی افقی): پنجره‌ها تمام ارتفاع در دسترس رو بگیرن */
+@media (max-height: 560px) {
+  .chat { bottom: 8px; height: calc(100vh - 16px); height: calc(100dvh - 16px); }
+  .sp { top: 8px; max-height: calc(100vh - 16px); max-height: calc(100dvh - 16px); }
+}
