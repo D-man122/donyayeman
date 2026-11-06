@@ -1209,3 +1209,93 @@
   .chat { bottom: 8px; height: calc(100vh - 16px); height: calc(100dvh - 16px); }
   .sp { top: 8px; max-height: calc(100vh - 16px); max-height: calc(100dvh - 16px); }
 }
+
+/* ==========================================================================
+   منوی کارتی (نسخه‌ی جدید): جمع‌وجور، آیکون‌دار و رنگی
+   ========================================================================== */
+.drawer { width: 252px; top: 60px; border-radius: 22px; box-shadow: 0 18px 44px rgba(20,10,40,.5), 0 0 0 1px rgba(255,255,255,.05); scrollbar-width: thin; }
+.profile {
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  grid-template-areas: "av name tools" "av id tools" "av role tools" "act act act";
+  column-gap: 10px; row-gap: 0; align-items: center; padding: 14px 12px 12px; position: relative;
+  background: radial-gradient(120% 90% at 100% 0%, rgba(168,85,247,.45), transparent 60%), linear-gradient(145deg, #3f2778, #2a1a4a);
+  border-radius: 21px 21px 0 0;
+}
+.profile .close { display: none; }
+.p-wrap { grid-area: av; width: 44px; }
+.p-avatar { width: 44px; height: 44px; border: 2.5px solid #ffc845; box-shadow: 0 0 0 3px rgba(255,200,69,.22), 0 6px 14px rgba(0,0,0,.3); }
+.p-avatar svg { width: 24px; height: 24px; }
+.edit-badge { width: 20px; height: 20px; bottom: -4px; left: -6px; }
+.p-name { grid-area: name; font-size: 15px; line-height: 1.5; align-self: end; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.p-id { grid-area: id; font-size: 12px; opacity: .8; align-self: start; justify-self: start; }
+.role-badge { grid-area: role; justify-self: start; margin: 4px 0 0; padding: 1px 9px; font-size: 10.5px; line-height: 1.7; }
+.profile .p-tools { position: static; grid-area: tools; display: flex; flex-direction: column; gap: 5px; align-self: start; align-items: stretch; }
+.profile .lang { height: 30px; padding: 0 9px; font-size: 12px; justify-content: center; }
+.profile .theme-btn { width: auto; height: 30px; border-radius: 999px; }
+.p-actions { grid-area: act; margin-top: 12px; display: flex; gap: 6px; }
+.pbtn { flex: 1; justify-content: center; padding: 7px 6px; font-size: 13px; }
+
+.cats:not(.more) { grid-template-columns: repeat(4, 1fr); gap: 0; padding: 8px 6px 4px; }
+.cats:not(.more) a {
+  flex-direction: column; justify-content: flex-start; align-items: center; text-align: center;
+  gap: 5px; padding: 8px 0 6px; font-size: 11px; font-weight: 700; border-radius: 12px; background: none; letter-spacing: -.2px;
+}
+.cats:not(.more) a:hover { background: var(--paper); }
+.cats:not(.more) a:last-of-type:nth-of-type(odd) { grid-column: auto; }
+.cats:not(.more) a svg { width: 36px; height: 36px; padding: 8.5px; border-radius: 13px; stroke: #fff; box-shadow: 0 5px 12px rgba(0,0,0,.2); transition: transform .15s; }
+.cats:not(.more) a:hover svg { transform: translateY(-2px) scale(1.05); }
+.cats a[href$="/movies"] svg     { background: linear-gradient(145deg, #ff6b78, #c81e36); }
+.cats a[href$="/series"] svg     { background: linear-gradient(145deg, #8b5cf6, #5b2fc2); }
+.cats a[href$="/animations"] svg { background: linear-gradient(145deg, #ffa24a, #e86a0c); }
+.cats a[href$="/anime"] svg      { background: linear-gradient(145deg, #f472b6, #c2307f); }
+.cats a[href$="/games"] svg      { background: linear-gradient(145deg, #34d27b, #12803f); }
+.cats a[href$="/music"] svg      { background: linear-gradient(145deg, #4cc3f5, #1b7dc2); }
+.cats a[href$="/apps"] svg       { background: linear-gradient(145deg, #2fd1bd, #0b8576); }
+
+.cats.more { padding: 4px 8px 10px; gap: 2px 4px; }
+.cats.more a { flex-direction: row; gap: 6px; padding: 8px 6px; font-size: 12px; white-space: nowrap; font-weight: 600; border: 0; background: none; color: var(--ink); border-radius: 10px; }
+.cats.more a svg { width: 17px; height: 17px; padding: 0; background: none; stroke: var(--muted); }
+.cats.more a:hover { background: var(--paper); }
+.sep.thick { margin: 0 14px; }
+
+/* ==========================================================================
+   تازه‌ها: بخش با پس‌زمینه‌ی جدا و ردیف اسکرولی برای هر دسته
+   ========================================================================== */
+#fresh .fresh-panel {
+  position: relative; overflow: hidden; border-radius: 28px; padding: 20px 0 8px; color: #fff;
+  background:
+    radial-gradient(110% 70% at 100% 0%, rgba(168,85,247,.38), transparent 62%),
+    radial-gradient(90% 60% at 0% 100%, rgba(255,181,36,.16), transparent 58%),
+    linear-gradient(160deg, #2f1c5e, #1b0e37);
+  border: 1px solid rgba(255,255,255,.08); box-shadow: 0 20px 44px rgba(42,26,74,.32);
+}
+#fresh .sec-head { padding: 0 20px 6px; }
+#fresh .sec-head h2 { color: #fff; }
+.fr-row { padding: 10px 0 2px; }
+.fr-row + .fr-row { border-top: 1px solid rgba(255,255,255,.08); margin-top: 6px; }
+.fr-row.is-empty { display: none; }
+body.editing .fr-row.is-empty { display: block; }
+.fr-head { display: flex; align-items: center; gap: 10px; padding: 0 20px; }
+.fr-ic { flex: none; width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; box-shadow: 0 4px 10px rgba(0,0,0,.25); }
+.fr-ic svg { width: 18px; height: 18px; stroke: #fff; }
+.fr-head h3 { flex: 1; margin: 0; font-size: 17px; color: #fff; }
+.fr-all { display: inline-flex; align-items: center; gap: 2px; padding: 4px 8px 4px 4px; border-radius: 999px; color: #ffd36b; font-size: 13px; font-weight: 700; text-decoration: none; }
+.fr-all:hover { background: rgba(255,255,255,.1); }
+.fr-all svg { width: 14px; height: 14px; stroke: currentColor; }
+.fr-row .row { padding: 10px 20px 12px; gap: 12px; scroll-padding-inline: 20px; }
+.fr-row .poster, .fr-row .add-card { width: 124px; }
+.fr-row .poster h3 { color: #fff; font-size: 14px; }
+.fr-row .poster .tag { display: none; }
+.fr-row .poster .art { box-shadow: 0 8px 18px rgba(0,0,0,.35); }
+.fr-row .add-card { color: #e9e3fa; }
+.fr-row .add-card .art { background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.28); }
+.fr-row .add-card .art svg { stroke: #e9e3fa; }
+.fr-none { color: #cfc6ee; padding: 14px 20px 18px; margin: 0; }
+@media (min-width: 1024px) {
+  #fresh .fresh-panel { padding: 26px 0 10px; border-radius: 32px; }
+  #fresh .sec-head, .fr-head { padding-inline: 32px; }
+  .fr-row .row { padding-inline: 32px; scroll-padding-inline: 32px; gap: 16px; }
+  .fr-row .poster, .fr-row .add-card { width: 152px; }
+  .fr-head h3 { font-size: 19px; }
+}
+#adminNav a { white-space: normal; line-height: 1.4; align-items: center; }

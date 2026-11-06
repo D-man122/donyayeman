@@ -878,11 +878,23 @@
   const addCard = (fn) => el('button', { type: 'button', class: 'poster add-card', 'aria-label': tr('افزودن'), onclick: fn },
     el('span', { class: 'art', html: I_PLUS }), el('span', { class: 'tag' }, tr('افزودن')));
 
+  // تازه‌ها: یه بخش با پس‌زمینه‌ی جدا و برای هر دسته یه ردیف اسکرولی
+  const FRESH_CATS = ['movies', 'series', 'animations', 'anime', 'games', 'music', 'apps'];
   function renderFresh() {
-    const row = document.getElementById('freshRow');
-    const list = state.items.filter((i) => i.fresh).slice(0, 12);
-    row.replaceChildren(addCard(() => openItemForm(null, { fresh: true })), ...list.map(posterEl));
-    if (!list.length) row.append(el('p', { class: 'empty' }, tr('هنوز موردی در تازه‌ها نیست.')));
+    const host = document.getElementById('freshRows');
+    const rank = (a, b) => (b.fresh ? 1 : 0) - (a.fresh ? 1 : 0) || (b.createdAt || 0) - (a.createdAt || 0);
+    const rows = FRESH_CATS.map((cat) => {
+      const c = CATS[cat];
+      const list = state.items.filter((i) => i.cat === cat).sort(rank).slice(0, 14);
+      return el('div', { class: 'fr-row' + (list.length ? '' : ' is-empty') },
+        el('div', { class: 'fr-head' },
+          el('span', { class: 'fr-ic ' + c.cls, html: catIcon(cat) }),
+          el('h3', {}, tr(c.fa)),
+          el('a', { class: 'fr-all', href: '#/c/' + cat }, tr('همه'), el('span', { html: I_CHEV }))),
+        el('div', { class: 'row' }, addCard(() => openItemForm(null, { cat, fresh: true })), ...list.map(posterEl)));
+    });
+    host.replaceChildren(...rows);
+    if (!state.items.length) host.append(el('p', { class: 'empty fr-none' }, tr('هنوز موردی در تازه‌ها نیست.')));
   }
 
   let curCat = null, curGenre = '', bnTimer = null;
