@@ -1053,52 +1053,6 @@
 @media (min-width: 1024px) { :root { --pad: max(16px, calc((100% - 1160px) / 2 + 20px)); } }
 .topbar { padding-inline: var(--pad); }
 
-/* --- منوی صفحه: کارت کوچیک زیر دکمه‌ی خانه، به‌جای پنل کناری --- */
-.overlay { background: rgba(20, 10, 40, .35); }
-.drawer {
-  top: 62px; bottom: auto; right: var(--pad); width: 248px; max-width: calc(100vw - 16px);
-  max-height: calc(100vh - 76px); max-height: calc(100dvh - 76px);
-  border-radius: 18px; border: 1px solid var(--line);
-  box-shadow: 0 14px 36px rgba(20, 10, 40, .4);
-  opacity: 0; transform: translateY(-8px) scale(.96); transform-origin: top right;
-  transition: transform .2s ease, opacity .2s ease, visibility 0s .2s;
-}
-.drawer.open { opacity: 1; transform: none; }
-.profile {
-  display: grid; grid-template-columns: 46px 1fr; column-gap: 10px; align-items: center;
-  padding: 46px 12px 12px; text-align: start; border-radius: 17px 17px 0 0;
-}
-.profile .p-tools { top: 8px; left: 8px; gap: 5px; }
-.profile .lang { height: 32px; padding: 0 10px 0 8px; font-size: 12.5px; gap: 5px; }
-.profile .lang svg { width: 16px; height: 16px; }
-.profile .theme-btn { width: 32px; height: 32px; }
-.profile .theme-btn svg { width: 17px; height: 17px; }
-.profile .close { top: 8px; right: 8px; width: 32px; height: 32px; }
-.profile .close svg { width: 16px; height: 16px; }
-.p-wrap { width: 46px; margin: 0; grid-column: 1; grid-row: 1 / span 2; }
-.p-avatar { width: 46px; height: 46px; border-width: 3px; }
-.p-avatar svg { width: 25px; height: 25px; }
-.edit-badge { width: 22px; height: 22px; border-width: 2px; bottom: -3px; left: -5px; }
-.edit-badge svg { width: 11px; height: 11px; }
-.p-name { grid-column: 2; font-size: 15px; align-self: end; }
-.p-id { grid-column: 2; font-size: 12.5px; margin-bottom: 0; align-self: start; }
-.role-badge { grid-column: 2; justify-self: start; }
-.p-actions { grid-column: 1 / -1; margin-top: 10px; gap: 6px; }
-.pbtn { padding: 7px 8px; font-size: 13.5px; border-radius: 11px; border-width: 1.5px; gap: 6px; }
-.pbtn svg { width: 16px; height: 16px; }
-
-.sep.thick { height: 1px; margin: 2px 12px 0; }
-.cats { padding: 8px 8px 6px; display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
-.cats-title { grid-column: 1 / -1; font-size: 12px; padding: 2px 6px 0; }
-.cats a { padding: 8px 9px; gap: 7px; font-size: 13.5px; border-radius: 11px; background: var(--paper); }
-.cats a svg { width: 18px; height: 18px; }
-.cats a + a::before { display: none; }
-.cats a:last-of-type:nth-of-type(odd) { grid-column: 1 / -1; }
-.cats a:hover { background: var(--line); }
-.cats.more { padding-top: 6px; padding-bottom: 10px; }
-.cats.more a { background: none; border: 1px solid var(--line); font-size: 12.5px; color: var(--muted); }
-.cats.more a:hover { background: var(--paper); color: var(--ink); }
-
 /* --- چت هوش مصنوعی: پنجره‌ی کوچک روی صفحه --- */
 .chat {
   top: auto; left: 50%; right: auto; width: min(calc(100vw - 24px), 400px);
@@ -1118,7 +1072,6 @@
 .chat-title small { font-size: 12px; }
 .chat-body { padding: 12px; }
 .composer { padding: 8px 10px calc(8px + env(safe-area-inset-bottom, 0px)); }
-.p-id { justify-self: start; }
 
 /* --- دکمه‌ی جستجو --- */
 .search-btn {
@@ -1211,54 +1164,6 @@
 }
 
 /* ==========================================================================
-   منوی کارتی (نسخه‌ی جدید): جمع‌وجور، آیکون‌دار و رنگی
-   ========================================================================== */
-.drawer { width: 252px; top: 60px; border-radius: 22px; box-shadow: 0 18px 44px rgba(20,10,40,.5), 0 0 0 1px rgba(255,255,255,.05); scrollbar-width: thin; }
-.profile {
-  grid-template-columns: 44px minmax(0, 1fr) auto;
-  grid-template-areas: "av name tools" "av id tools" "av role tools" "act act act";
-  column-gap: 10px; row-gap: 0; align-items: center; padding: 14px 12px 12px; position: relative;
-  background: radial-gradient(120% 90% at 100% 0%, rgba(168,85,247,.45), transparent 60%), linear-gradient(145deg, #3f2778, #2a1a4a);
-  border-radius: 21px 21px 0 0;
-}
-.profile .close { display: none; }
-.p-wrap { grid-area: av; width: 44px; }
-.p-avatar { width: 44px; height: 44px; border: 2.5px solid #ffc845; box-shadow: 0 0 0 3px rgba(255,200,69,.22), 0 6px 14px rgba(0,0,0,.3); }
-.p-avatar svg { width: 24px; height: 24px; }
-.edit-badge { width: 20px; height: 20px; bottom: -4px; left: -6px; }
-.p-name { grid-area: name; font-size: 15px; line-height: 1.5; align-self: end; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.p-id { grid-area: id; font-size: 12px; opacity: .8; align-self: start; justify-self: start; }
-.role-badge { grid-area: role; justify-self: start; margin: 4px 0 0; padding: 1px 9px; font-size: 10.5px; line-height: 1.7; }
-.profile .p-tools { position: static; grid-area: tools; display: flex; flex-direction: column; gap: 5px; align-self: start; align-items: stretch; }
-.profile .lang { height: 30px; padding: 0 9px; font-size: 12px; justify-content: center; }
-.profile .theme-btn { width: auto; height: 30px; border-radius: 999px; }
-.p-actions { grid-area: act; margin-top: 12px; display: flex; gap: 6px; }
-.pbtn { flex: 1; justify-content: center; padding: 7px 6px; font-size: 13px; }
-
-.cats:not(.more) { grid-template-columns: repeat(4, 1fr); gap: 0; padding: 8px 6px 4px; }
-.cats:not(.more) a {
-  flex-direction: column; justify-content: flex-start; align-items: center; text-align: center;
-  gap: 5px; padding: 8px 0 6px; font-size: 11px; font-weight: 700; border-radius: 12px; background: none; letter-spacing: -.2px;
-}
-.cats:not(.more) a:hover { background: var(--paper); }
-.cats:not(.more) a:last-of-type:nth-of-type(odd) { grid-column: auto; }
-.cats:not(.more) a svg { width: 36px; height: 36px; padding: 8.5px; border-radius: 13px; stroke: #fff; box-shadow: 0 5px 12px rgba(0,0,0,.2); transition: transform .15s; }
-.cats:not(.more) a:hover svg { transform: translateY(-2px) scale(1.05); }
-.cats a[href$="/movies"] svg     { background: linear-gradient(145deg, #ff6b78, #c81e36); }
-.cats a[href$="/series"] svg     { background: linear-gradient(145deg, #8b5cf6, #5b2fc2); }
-.cats a[href$="/animations"] svg { background: linear-gradient(145deg, #ffa24a, #e86a0c); }
-.cats a[href$="/anime"] svg      { background: linear-gradient(145deg, #f472b6, #c2307f); }
-.cats a[href$="/games"] svg      { background: linear-gradient(145deg, #34d27b, #12803f); }
-.cats a[href$="/music"] svg      { background: linear-gradient(145deg, #4cc3f5, #1b7dc2); }
-.cats a[href$="/apps"] svg       { background: linear-gradient(145deg, #2fd1bd, #0b8576); }
-
-.cats.more { padding: 4px 8px 10px; gap: 2px 4px; }
-.cats.more a { flex-direction: row; gap: 6px; padding: 8px 6px; font-size: 12px; white-space: nowrap; font-weight: 600; border: 0; background: none; color: var(--ink); border-radius: 10px; }
-.cats.more a svg { width: 17px; height: 17px; padding: 0; background: none; stroke: var(--muted); }
-.cats.more a:hover { background: var(--paper); }
-.sep.thick { margin: 0 14px; }
-
-/* ==========================================================================
    تازه‌ها: بخش با پس‌زمینه‌ی جدا و ردیف اسکرولی برای هر دسته
    ========================================================================== */
 #fresh .fresh-panel {
@@ -1298,68 +1203,6 @@ body.editing .fr-row.is-empty { display: block; }
   .fr-row .poster, .fr-row .add-card { width: 152px; }
   .fr-head h3 { font-size: 19px; }
 }
-#adminNav a { white-space: normal; line-height: 1.4; align-items: center; }
-
-/* ==========================================================================
-   منو: چسبیده به گوشه‌ی بالا-راست، کلید تم، آیکون‌های خطی مینیمال
-   ========================================================================== */
-.drawer {
-  top: 0; right: 0; left: auto; width: 272px; max-width: 92vw;
-  max-height: 100vh; max-height: 100dvh;
-  border-radius: 0 0 0 28px; border-width: 0 0 1px 1px; transform-origin: top right;
-  transform: translateY(-8px) scale(.97);
-}
-.drawer.open { transform: none; }
-.profile {
-  grid-template-columns: 44px minmax(0, 1fr) auto;
-  grid-template-areas: "av name close" "av id close" "av role close" "act act act" "set set set";
-  border-radius: 0; padding: calc(16px + env(safe-area-inset-top, 0px)) 14px 14px;
-}
-.profile .close { display: grid; position: static; grid-area: close; align-self: start; width: 34px; height: 34px; margin: 0; }
-.profile .p-tools { grid-area: set; flex-direction: row; justify-content: space-between; align-items: center; align-self: auto; margin-top: 12px; gap: 8px; }
-.profile .lang { height: 32px; padding: 0 12px 0 10px; font-size: 12.5px; }
-
-/* کلید تم: چپ و راست می‌ره و آیکونش روز/شب می‌شه */
-.theme-switch {
-  position: relative; flex: none; width: 62px; height: 32px; padding: 0; cursor: pointer; direction: ltr; overflow: hidden;
-  border: 1.5px solid rgba(255,255,255,.4); border-radius: 999px;
-  background: radial-gradient(circle at 24% 62%, rgba(255,255,255,.7) 0 5px, transparent 6px), linear-gradient(135deg, #5fb4ff, #bfe3ff);
-  transition: background .35s, border-color .2s;
-}
-:root[data-theme="dark"] .theme-switch {
-  background:
-    radial-gradient(circle at 68% 30%, #fff 0 1px, transparent 1.6px), radial-gradient(circle at 82% 66%, #fff 0 .9px, transparent 1.5px),
-    radial-gradient(circle at 56% 72%, #fff 0 .8px, transparent 1.4px), linear-gradient(135deg, #150f3a, #3b2a7c);
-}
-.theme-switch:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
-.ts-knob {
-  position: absolute; top: 3px; left: 32px; width: 23px; height: 23px; border-radius: 50%; display: grid; place-items: center;
-  background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.3); transition: left .3s cubic-bezier(.5,1.6,.5,1), background .3s;
-}
-:root[data-theme="dark"] .ts-knob { left: 3px; background: #f1ecff; }
-.ts-knob svg { grid-area: 1 / 1; width: 15px; height: 15px; stroke-width: 2; transition: opacity .25s, transform .35s; }
-.ts-knob .k-sun { stroke: #f59e0b; }
-.ts-knob .k-moon { stroke: #4a2f9a; opacity: 0; transform: rotate(-70deg) scale(.5); }
-:root[data-theme="dark"] .ts-knob .k-sun { opacity: 0; transform: rotate(70deg) scale(.5); }
-:root[data-theme="dark"] .ts-knob .k-moon { opacity: 1; transform: none; }
-
-/* آیکون‌های خطی مینیمال */
-.drawer .cats svg { stroke-width: 1.6; }
-.cats:not(.more) a svg {
-  width: 40px; height: 40px; padding: 9px; border-radius: 14px; stroke: var(--c); box-shadow: none; background: none;
-  background: color-mix(in srgb, var(--c) 12%, transparent); border: 1px solid color-mix(in srgb, var(--c) 28%, transparent);
-}
-.cats a[href$="/movies"]     { --c: #ff5d6c; }
-.cats a[href$="/series"]     { --c: #9b6dff; }
-.cats a[href$="/animations"] { --c: #ff9a3d; }
-.cats a[href$="/anime"]      { --c: #f063ad; }
-.cats a[href$="/games"]      { --c: #2fc872; }
-.cats a[href$="/music"]      { --c: #3fb6f0; }
-.cats a[href$="/apps"]       { --c: #25c3af; }
-.cats a[href$="/movies"] svg, .cats a[href$="/series"] svg, .cats a[href$="/animations"] svg, .cats a[href$="/anime"] svg,
-.cats a[href$="/games"] svg, .cats a[href$="/music"] svg, .cats a[href$="/apps"] svg { background: color-mix(in srgb, var(--c) 12%, transparent); }
-.cats.more a svg { width: 18px; height: 18px; stroke: var(--muted); stroke-width: 1.6; }
-.cats.more a:hover svg { stroke: var(--ink); }
 
 /* تازه‌ها: از چپ و راست به صفحه می‌چسبه */
 main section#fresh { max-width: none; padding: 20px 0 8px; }
