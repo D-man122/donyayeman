@@ -261,6 +261,7 @@
       ? (dark ? 'Switch to light theme' : 'Switch to dark theme')
       : (dark ? 'تغییر به تم روشن' : 'تغییر به تم تیره');
     themeBtn.setAttribute('aria-label', label);
+    themeBtn.setAttribute('aria-checked', String(dark));
     themeBtn.title = label;
   }
   themeBtn.addEventListener('click', () => {
