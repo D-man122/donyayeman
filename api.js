@@ -6,7 +6,7 @@
                    و بازدیدکننده‌های دیگه تغییرات رو نمی‌بینن.
    حالت 'remote' : وصل به سرور واقعی. قرارداد آدرس‌ها پایین همین فایل هست.
 
-   بعد از گرفتن سرور فقط این خط رو قبل از api.js تو index.html و account.html بذار:
+   بعد از گرفتن سرور فقط این خط رو قبل از api.js تو index.html بذار:
      <script>window.DM_CONFIG = { mode: 'remote', baseUrl: 'https://api.example.com' };</script>
 
    مهم برای امنیت: چک «مدیر بودن» اینجا فقط برای راحتی رابط کاربریه.
@@ -48,7 +48,7 @@
       return 'f' + (h >>> 0).toString(16);
     }
     function roleOf(u) { return u.username === OWNER_ID ? 'admin' : 'user'; }
-    function pub(u) { return { id: u.id, name: u.name, username: u.username || '', email: u.email, role: roleOf(u) }; }
+    function pub(u) { return { id: u.id, name: u.name, username: u.username || '', email: u.email, role: roleOf(u), bio: u.bio || '', avatar: u.avatar || '', createdAt: u.createdAt || 0 }; }
     function currentUser() {
       var s = read('session', null);
       if (!s) return null;
@@ -87,6 +87,26 @@
         if (!u || (await hash(u.salt, String(d.password || ''))) !== u.passHash) throw fail('bad_credentials');
         write('session', { id: u.id });
         return pub(u);
+      },
+      // ویرایش پروفایل: نام، درباره‌ی من و عکس (آیدی و ایمیل ثابتن)
+      async update(d) {
+        var u = currentUser();
+        if (!u) throw fail('forbidden');
+        var users = read('users', []);
+        var me = users.find(function (x) { return x.id === u.id; });
+        if (d.name !== undefined) {
+          var n = String(d.name).trim();
+          if (!n || n.length > 60) throw fail('invalid');
+          me.name = n;
+        }
+        if (d.bio !== undefined) me.bio = String(d.bio).trim().slice(0, 160);
+        if (d.avatar !== undefined) {
+          var a = String(d.avatar || '');
+          if (a && !IMG_RE.test(a)) throw fail('invalid');
+          me.avatar = a;
+        }
+        write('users', users);
+        return pub(me);
       },
       async logout() { try { localStorage.removeItem(NS + 'session'); } catch (e) { /* مهم نیست */ } }
     };
@@ -226,6 +246,16 @@
           try { all.push(Object.assign({ id: 'vd-' + i, createdAt: nowV - i, updatedAt: nowV - i }, cleanItem(m))); } catch (e) { /* رد شد */ }
         });
         write('seeded-videodata-v1', true);
+      }
+      // نمونه‌ی آماده‌ی انیمه، بازی و برنامه (sample-data.js کنار index.html). یک بار اضافه می‌شه و نمونه‌های خالی قبلی (عنوان نمونه) جاشون رو می‌دن.
+      if (!read('seeded-samples-v1', false) && Array.isArray(window.DM_SAMPLES) && window.DM_SAMPLES.length) {
+        all = all || read('items', []);
+        var smCats = ['anime', 'games', 'apps'], nowS = Date.now();
+        all = all.filter(function (x) { return !(/^(seed-|demo-)/.test(String(x.id)) && smCats.indexOf(x.cat) >= 0); });
+        window.DM_SAMPLES.forEach(function (m, i) {
+          try { all.push(Object.assign({ id: m.id, createdAt: nowS - i * 1000, updatedAt: nowS - i * 1000 }, cleanItem(m))); } catch (e) { /* رد شد */ }
+        });
+        write('seeded-samples-v1', true);
       }
       // خدمات و آموزش‌ها (قابل ویرایش از پنل مدیر)
       if (!read('seeded-info-v1', false)) {
@@ -445,6 +475,10 @@
       // عکس کاور کوچیک و ذخیره می‌شه. فایل‌های دیگه (بازی، فیلم و...) تو حالت local
       // فقط اسم و حجمشون ثبت می‌شه و بعد از وصل شدن به سرور واقعی آپلود می‌شن.
       async upload(file, o) {
+        if (o && o.kind === 'avatar') { // عکس پروفایل: هر کاربر واردشده‌ای می‌تونه
+          if (!currentUser()) throw fail('forbidden');
+          return { url: await compress(file, 256, 0.82), name: file.name, size: file.size };
+        }
         needAdmin();
         if (o && o.kind === 'image') {
           return { url: await compress(file, 720, 0.8), name: file.name, size: file.size };
@@ -502,6 +536,7 @@
   /* ----------------------------- حالت remote -----------------------------
      قرارداد سرور (همه JSON، کوکی نشست با credentials: 'include'):
        GET    /api/auth/me                 -> { user: {id,name,username,email,role} | null }
+       PATCH  /api/auth/me {name?,bio?,avatar?} -> { user }   (پروفایل؛ آپلود عکس: POST /api/upload?kind=avatar برای هر کاربر واردشده)
        POST   /api/auth/register {name,username,email,password} -> { user }   خطا: { error: 'username_taken' | 'email_taken' | 'invalid' }
                                       (سرور باید role رو فقط 'admin' کنه وقتی username === 'gh_mir')
        POST   /api/auth/login    {email,password}      -> { user }   خطا: { error: 'bad_credentials' }
@@ -544,6 +579,7 @@
         async me() { return (await req('GET', '/api/auth/me')).user || null; },
         async register(d) { return (await req('POST', '/api/auth/register', d)).user; },
         async login(d) { return (await req('POST', '/api/auth/login', d)).user; },
+        async update(d) { return (await req('PATCH', '/api/auth/me', d)).user; },
         async logout() { await req('POST', '/api/auth/logout'); }
       },
       items: {

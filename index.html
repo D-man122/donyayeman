@@ -29,10 +29,10 @@
 
 <header class="topbar" id="top">
   <button class="icon-btn" id="homeBtn" aria-label="خانه و دسته‌بندی‌ها" aria-expanded="false" aria-controls="drawer">
-    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-6.5 8 6.5"/><path d="M6 9.8V19a1 1 0 001 1h3.2v-5.2h3.6V20H17a1 1 0 001-1V9.8"/></svg>
   </button>
   <button type="button" class="search-btn" id="searchBtn" aria-label="جستجو" aria-haspopup="dialog" aria-expanded="false" aria-controls="searchPanel">
-    <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4-4"/></svg>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg>
   </button>
   <a class="brand" href="#top" dir="ltr" aria-label="donyayeman"><span class="b1"><img class="dmark" src="d-mark.png" alt="d">onyaye</span><span class="b2">man</span></a>
 </header>
@@ -73,19 +73,21 @@
       <div class="p-avatar" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
       </div>
-      <button type="button" class="edit-badge" aria-label="ویرایش پروفایل">
+      <button type="button" class="edit-badge" aria-label="ویرایش پروفایل" hidden>
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9a2.8 2.8 0 00-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>
       </button>
     </div>
     <div class="p-name">نام کاربر</div>
     <div class="p-id" dir="ltr">@user_id</div>
     <div class="role-badge" id="roleBadge" hidden>مدیر</div>
+    <div class="p-bio" id="pBio" hidden></div>
+    <div class="p-since" id="pSince" hidden></div>
     <div class="p-actions">
-      <button type="button" class="pbtn solid" data-go="account.html#login">
+      <button type="button" class="pbtn solid" data-go="login">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 4h3a2 2 0 012 2v12a2 2 0 01-2 2h-3"/><path d="M10 17l5-5-5-5M15 12H4"/></svg>
         ورود
       </button>
-      <button type="button" class="pbtn" data-go="account.html#signup">
+      <button type="button" class="pbtn" data-go="signup">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="8" r="4"/><path d="M3 20c0-3.9 3.1-6 7-6M18 14v6M15 17h6"/></svg>
         ثبت‌نام
       </button>
@@ -183,7 +185,6 @@
   </div>
   <h1><span class="hi">خوش اومدی به</span><span class="big"><em>دنیای</em><strong>من</strong></span></h1>
   <p id="heroSub">فیلم، سریال، انیمیشن، انیمه، بازی، موزیک و برنامه، همه توی یه جا.</p>
-  <svg class="wave" viewBox="0 0 1440 60" preserveAspectRatio="none" aria-hidden="true"><path d="M0 60V30C240 -6 480 -6 720 24s480 30 720-6v42z"/></svg>
 </section>
 
 <main id="home">
@@ -349,6 +350,7 @@
 
 <script src="music-data.js"></script>
 <script src="video-data.js"></script>
+<script src="sample-data.js"></script>
 <script src="api.js"></script>
 <script src="app.js"></script>
 </body>

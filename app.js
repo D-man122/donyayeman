@@ -304,13 +304,32 @@
     { fa: 'درباره‌ی من', href: '#about', kw: 'about معرفی' },
     { fa: 'تماس با من', href: '#contact', kw: 'contact ایمیل تلگرام اینستاگرام' }
   ].concat(SP_ALL_CATS.map((k) => ({ fa: CATS[k].fa, href: '#/c/' + k, sub: CATS[k].sub, cat: k })))
-    .concat([{ fa: 'ورود', href: 'account.html#login', kw: 'login sign in حساب' }, { fa: 'ثبت‌نام', href: 'account.html#signup', kw: 'register sign up حساب' }]);
+    .concat([{ fa: 'ورود', href: '#login', kw: 'login sign in حساب' }, { fa: 'ثبت‌نام', href: '#signup', kw: 'register sign up حساب' }]);
 
   const spMatch = (it, tokens) => {
     const c = CATS[it.cat] || {};
     const hay = nz([it.title, it.titleEn, it.artist, it.genre, it.country, it.year, it.desc, c.fa, c.tag].join(' '));
     return tokens.every((t) => hay.includes(t));
   };
+
+  Object.assign(EN, {
+    "ورود / ثبت‌نام": "Log in / Sign up", "ثبت‌نام": "Sign up", "ورود": "Log in", "نام": "Name", "آیدی": "ID",
+    "ایمیل": "Email", "رمز عبور": "Password", "تکرار رمز عبور": "Confirm password",
+    "ساخت حساب جدید": "Create account", "قبلاً ثبت‌نام کردی؟": "Already have an account?", "تازه اومدی؟": "New here?",
+    "نام رو وارد کن.": "Please enter your name.", "آیدی رو وارد کن.": "Please enter your ID.",
+    "آیدی باید ۳ تا ۳۰ کاراکتر باشه و فقط حروف انگلیسی، عدد، _ و . داشته باشه.": "ID must be 3–30 characters: English letters, numbers, _ and . only.",
+    "ایمیل رو وارد کن.": "Please enter your email.", "ایمیل معتبر نیست.": "Email is not valid.",
+    "رمز عبور رو وارد کن.": "Please enter your password.", "رمز عبور باید حداقل ۸ کاراکتر باشه.": "Password must be at least 8 characters.",
+    "رمزها یکسان نیستن.": "Passwords do not match.", "این آیدی قبلاً گرفته شده.": "This ID is already taken.",
+    "این ایمیل قبلاً ثبت شده. وارد شو.": "This email is already registered. Log in instead.",
+    "ایمیل یا رمز عبور اشتباهه.": "Email or password is wrong.",
+    "حساب ساخته شد. خوش اومدی!": "Account created. Welcome!", "وارد شدی. خوش برگشتی!": "Logged in. Welcome back!",
+    "فعلاً اطلاعات فقط روی همین مرورگر ذخیره می‌شه.": "For now, data is stored only in this browser.",
+    "نمایش رمز": "Show password", "پنهان کردن رمز": "Hide password",
+    "ویرایش پروفایل": "Edit profile", "عکس پروفایل": "Profile photo", "انتخاب عکس": "Choose photo", "حذف عکس": "Remove photo",
+    "درباره‌ی من (کوتاه)": "About me (short)", "آیدی و ایمیل قابل تغییر نیستن.": "ID and email can't be changed.",
+    "نقش": "Role", "کاربر": "User", "عضو از": "Member since", "پروفایل ذخیره شد.": "Profile saved.", "ذخیره": "Save", "انصراف": "Cancel"
+  });
   const spScore = (it, k) => { const t = nz(it.title); return t === k ? 0 : t.startsWith(k) ? 1 : t.includes(k) ? 2 : 3; };
 
   function spItemRow(it) {
@@ -625,7 +644,7 @@
       return { text: ls.length ? 'از این راه‌ها می‌تونی با من در ارتباط باشی:' : 'راه‌های ارتباطی توی بخش «تماس با من» هست.', links: ls.length ? ls : [lk('تماس با من', '#contact')] };
     }
     if (has(/درباره|کیهستی|سازنده|معرفی(خودت|سایت)/)) return { text: S.about || 'این سایت رو برای جمع کردن فیلم، موزیک و بازی ساختم.', links: [lk('درباره من', '#about')] };
-    if (has(/ثبتنام|ورود|حساب|لاگین/)) return { text: 'از صفحه‌ی حساب کاربری می‌تونی ثبت‌نام کنی یا وارد بشی.', links: [lk('حساب کاربری', 'account.html')] };
+    if (has(/ثبتنام|ورود|حساب|لاگین/)) return { text: 'از صفحه‌ی حساب کاربری می‌تونی ثبت‌نام کنی یا وارد بشی.', links: [lk('حساب کاربری', '#login')] };
     const cats = { movies: /فیلم|movie/, series: /سریال|series/, animations: /انیمیشن|کارتون/, anime: /انیمه|anime/, music: /موزیک|آهنگ|خواننده|music|song/, games: /بازی|game/, apps: /برنامه|اپلیکیشن/ };
     const catKey = Object.keys(cats).find((k) => has(cats[k]));
     const STOP = new Set(['پیشنهاد', 'بده', 'بگو', 'معرفی', 'میخوام', 'دنبال', 'یه', 'یک', 'بهترین', 'جدید', 'لطفا', 'برای', 'از', 'و', 'یا', 'در', 'با', 'فیلم', 'سریال', 'انیمیشن', 'کارتون', 'انیمه', 'موزیک', 'آهنگ', 'خواننده', 'بازی', 'برنامه', 'اپلیکیشن', 'movie', 'series', 'music', 'song', 'game'].map(nq));
@@ -678,7 +697,7 @@
 
   // دکمه‌های ورود و ثبت‌نام
   document.querySelectorAll('[data-go]').forEach(b =>
-    b.addEventListener('click', () => { location.href = b.dataset.go; }));
+    b.addEventListener('click', () => openAuth(b.dataset.go)));
 
   // پنل کناری (خانه)
   const homeBtn = document.getElementById('homeBtn');
@@ -1875,7 +1894,7 @@
           : f ? el('span', { class: 'mv-btn dl', 'aria-disabled': 'true' }, el('span', { html: IM_DL }), tr('دانلود فیلم') + ' (' + tr('به‌زودی') + ')') : null,
         !link && !f ? el('p', { class: 'empty' }, tr('لینک تماشا یا دانلود هنوز اضافه نشده.')) : null,
         desc, more,
-        state.user ? null : el('a', { class: 'mv-login', href: 'account.html' }, el('span', { style: 'flex:1' }, tr('با ورود به حساب، لیست تماشا و علاقه‌مندی‌هات ذخیره می‌شه!')), el('b', {}, tr('ورود'))),
+        state.user ? null : el('a', { class: 'mv-login', href: '#login' }, el('span', { style: 'flex:1' }, tr('با ورود به حساب، لیست تماشا و علاقه‌مندی‌هات ذخیره می‌شه!')), el('b', {}, tr('ورود'))),
         el('div', { class: 'mv-acts' }, likeBtn, disBtn, saveBtn, shareBtn),
         tabsEl, panel)].filter(Boolean));
     showTab(isSer ? 'ep' : 'cm');
@@ -1892,6 +1911,12 @@
   }
   function route() {
     const H = curHash();
+    if (H === '#login' || H === '#signup') {
+      forceHash = null;
+      try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { /* مهم نیست */ }
+      openAuth(H.slice(1));
+      return;
+    }
     const m = H.match(/^#\/c\/(\w+)$/), mm = H.match(/^#\/m\/([\w%-]+)$/);
     const hero = document.querySelector('.hero'), home = document.getElementById('home'), cv = document.getElementById('catView'), mv = document.getElementById('movieView');
     const wasCat = curCat !== null;
@@ -2147,6 +2172,129 @@
     });
   }
 
+
+  // ---------- ورود، ثبت‌نام و پروفایل (داخل همین صفحه) ----------
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/, USER_RE = /^[a-z0-9_.]{3,30}$/;
+  const I_EYE = SVG('<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>');
+  function openAuth(tab) {
+    setDrawer(false);
+    let mode = tab === 'login' ? 'login' : 'signup';
+    const draw = () => {
+      const su = mode === 'signup';
+      const mk = (id, label, type, o = {}) => {
+        const inp = el('input', { id, type, class: o.ltr ? 'ltr' : '', autocomplete: o.ac || 'off', autocapitalize: 'none', spellcheck: 'false', placeholder: o.ph || '' });
+        if (o.im) inp.setAttribute('inputmode', o.im);
+        const err = el('div', { class: 'ferr' });
+        let ctrl = inp;
+        if (type === 'password') {
+          const eye = el('button', { type: 'button', class: 'au-eye', 'aria-label': tr('نمایش رمز'), html: I_EYE, onclick: () => {
+            inp.type = inp.type === 'password' ? 'text' : 'password';
+            eye.setAttribute('aria-label', tr(inp.type === 'text' ? 'پنهان کردن رمز' : 'نمایش رمز'));
+          } });
+          ctrl = el('div', { class: 'au-pw' }, inp, eye);
+        }
+        return { inp, err, box: el('div', { class: 'fld' }, el('label', { for: id }, label), ctrl, err) };
+      };
+      const f = {
+        name: su && mk('au-name', tr('نام'), 'text', { ac: 'name' }),
+        user: su && mk('au-user', tr('آیدی'), 'text', { ltr: 1, ac: 'username', ph: 'your_id', im: 'latin' }),
+        email: mk('au-email', tr('ایمیل'), 'email', { ltr: 1, ac: 'email', im: 'email', ph: 'you@example.com' }),
+        pass: mk('au-pass', tr('رمز عبور'), 'password', { ltr: 1, ac: su ? 'new-password' : 'current-password', ph: '••••••••' }),
+        pass2: su && mk('au-pass2', tr('تکرار رمز عبور'), 'password', { ltr: 1, ac: 'new-password', ph: '••••••••' })
+      };
+      const fields = Object.values(f).filter(Boolean);
+      const msg = el('div', { class: 'au-msg', role: 'alert' });
+      const btn = el('button', { type: 'submit', class: 'btn primary au-submit' }, tr(su ? 'ثبت‌نام' : 'ورود'));
+      const tabs = el('div', { class: 'au-tabs', role: 'tablist' },
+        ...['signup', 'login'].map((k) => el('button', { type: 'button', role: 'tab', 'aria-selected': String(mode === k), onclick: () => { mode = k; draw(); } }, tr(k === 'signup' ? 'ثبت‌نام' : 'ورود'))));
+      const form = el('form', { class: 'au', novalidate: 'novalidate' }, tabs, ...fields.map((x) => x.box), msg, btn,
+        el('p', { class: 'au-note' }, tr('فعلاً اطلاعات فقط روی همین مرورگر ذخیره می‌شه.')));
+      form.addEventListener('input', (e) => { e.target.removeAttribute('aria-invalid'); fields.forEach((x) => { if (x.inp === e.target) x.err.textContent = ''; }); msg.textContent = ''; });
+      form.addEventListener('submit', async (ev) => {
+        ev.preventDefault();
+        const v = (x) => x.inp.value.trim();
+        const checks = [];
+        if (su) {
+          const u = v(f.user).replace(/^@/, '').toLowerCase();
+          checks.push([f.name, v(f.name) ? '' : 'نام رو وارد کن.']);
+          checks.push([f.user, !u ? 'آیدی رو وارد کن.' : USER_RE.test(u) ? '' : 'آیدی باید ۳ تا ۳۰ کاراکتر باشه و فقط حروف انگلیسی، عدد، _ و . داشته باشه.']);
+        }
+        checks.push([f.email, !v(f.email) ? 'ایمیل رو وارد کن.' : EMAIL_RE.test(v(f.email)) ? '' : 'ایمیل معتبر نیست.']);
+        const pw = f.pass.inp.value;
+        checks.push([f.pass, !pw ? 'رمز عبور رو وارد کن.' : (su && pw.length < 8) ? 'رمز عبور باید حداقل ۸ کاراکتر باشه.' : '']);
+        if (su) checks.push([f.pass2, f.pass2.inp.value && f.pass2.inp.value === pw ? '' : 'رمزها یکسان نیستن.']);
+        let first = null;
+        checks.forEach(([x, k]) => { x.err.textContent = k ? tr(k) : ''; x.inp.toggleAttribute('aria-invalid', !!k); if (k && !first) first = x.inp; });
+        if (first) { first.focus(); return; }
+        btn.disabled = true;
+        try {
+          if (su) await Api.auth.register({ name: v(f.name), username: v(f.user).replace(/^@/, '').toLowerCase(), email: v(f.email), password: pw });
+          else await Api.auth.login({ email: v(f.email), password: pw });
+          closeModal(); await refresh();
+          toast(tr(su ? 'حساب ساخته شد. خوش اومدی!' : 'وارد شدی. خوش برگشتی!'));
+        } catch (e) {
+          const c = e && (e.code || e.message);
+          msg.textContent = c === 'username_taken' ? tr('این آیدی قبلاً گرفته شده.') : c === 'email_taken' ? tr('این ایمیل قبلاً ثبت شده. وارد شو.') : c === 'bad_credentials' ? tr('ایمیل یا رمز عبور اشتباهه.') : errMsg(e);
+          btn.disabled = false;
+        }
+      });
+      openModal({ title: tr('ورود / ثبت‌نام'), content: form });
+    };
+    draw();
+  }
+
+  function openProfile() {
+    const u = state.user;
+    if (!u) { openAuth('login'); return; }
+    setDrawer(false);
+    let avatar = u.avatar || '';
+    const prev = el('div', { class: 'pf-av' });
+    const drawAv = () => {
+      prev.replaceChildren();
+      if (avatar) prev.append(el('img', { src: avatar, alt: '' }));
+      else prev.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>';
+      rm.hidden = !avatar;
+    };
+    const file = el('input', { type: 'file', accept: 'image/*', hidden: 'hidden' });
+    const rm = el('button', { type: 'button', class: 'btn ghost pf-sm', onclick: () => { avatar = ''; drawAv(); } }, tr('حذف عکس'));
+    file.addEventListener('change', async () => {
+      const fl = file.files && file.files[0]; if (!fl) return;
+      try { const r = await Api.media.upload(fl, { kind: 'avatar' }); avatar = r.url; drawAv(); } catch (e) { toast(errMsg(e)); }
+      file.value = '';
+    });
+    drawAv();
+    const fName = el('input', { id: 'pf-name', type: 'text', maxlength: 60, value: u.name });
+    const fBio = el('textarea', { id: 'pf-bio', rows: 3, maxlength: 160 }, u.bio || '');
+    const eName = el('div', { class: 'ferr' });
+    const fld = (l, id, c, e) => el('div', { class: 'fld' }, el('label', { for: id }, l), c, e);
+    const since = u.createdAt ? new Date(u.createdAt).toLocaleDateString(lang === 'en' ? 'en-US' : 'fa-IR', { year: 'numeric', month: 'long' }) : '—';
+    const info = el('dl', { class: 'pf-info' },
+      el('div', {}, el('dt', {}, tr('آیدی')), el('dd', { dir: 'ltr' }, '@' + (u.username || ''))),
+      el('div', {}, el('dt', {}, tr('ایمیل')), el('dd', { dir: 'ltr' }, u.email)),
+      el('div', {}, el('dt', {}, tr('نقش')), el('dd', {}, tr(u.role === 'admin' ? 'مدیر' : 'کاربر'))),
+      el('div', {}, el('dt', {}, tr('عضو از')), el('dd', {}, since)));
+    const save = el('button', { type: 'button', class: 'btn primary' }, tr('ذخیره'));
+    save.addEventListener('click', async () => {
+      eName.textContent = '';
+      if (!fName.value.trim()) { eName.textContent = tr('نام رو وارد کن.'); fName.focus(); return; }
+      save.disabled = true;
+      try {
+        state.user = await Api.auth.update({ name: fName.value, bio: fBio.value, avatar });
+        updateAuthUI(); closeModal(); toast(tr('پروفایل ذخیره شد.'));
+      } catch (e) { toast(errMsg(e)); save.disabled = false; }
+    });
+    openModal({
+      title: tr('ویرایش پروفایل'),
+      content: el('div', { style: 'padding:0' },
+        el('div', { class: 'pf-top' }, prev, el('div', { class: 'pf-btns' }, el('button', { type: 'button', class: 'btn ghost pf-sm', onclick: () => file.click() }, tr('انتخاب عکس')), rm, file)),
+        fld(tr('نام'), 'pf-name', fName, eName), fld(tr('درباره‌ی من (کوتاه)'), 'pf-bio', fBio), info,
+        el('small', { class: 'pf-note' }, tr('آیدی و ایمیل قابل تغییر نیستن.'))),
+      actions: [el('button', { type: 'button', class: 'btn ghost', onclick: () => closeModal() }, tr('انصراف')), save]
+    });
+  }
+  document.querySelector('.edit-badge').addEventListener('click', openProfile);
+  document.querySelector('.p-avatar').addEventListener('click', () => { if (state.user) openProfile(); });
+
   // ---------- حساب کاربری و حالت ویرایش ----------
   const fab = document.getElementById('fab');
   function setEditing(on) {
@@ -2160,6 +2308,14 @@
     document.querySelector('.p-name').textContent = u ? u.name : tr('نام کاربر');
     document.querySelector('.p-id').textContent = u ? '@' + (u.username || u.email.split('@')[0]) : '@user_id';
     document.getElementById('roleBadge').hidden = !adm;
+    document.querySelector('.edit-badge').hidden = !u;
+    const av = document.querySelector('.p-avatar');
+    av.classList.toggle('has-img', !!(u && u.avatar));
+    av.style.backgroundImage = u && u.avatar ? 'url("' + u.avatar.replace(/"/g, '%22') + '")' : '';
+    const bio = document.getElementById('pBio'), since = document.getElementById('pSince');
+    bio.hidden = !(u && u.bio); bio.textContent = u && u.bio ? u.bio : '';
+    since.hidden = !(u && u.createdAt);
+    if (u && u.createdAt) since.textContent = tr('عضو از') + ' ' + new Date(u.createdAt).toLocaleDateString(lang === 'en' ? 'en-US' : 'fa-IR', { year: 'numeric', month: 'long' });
     document.querySelectorAll('[data-go]').forEach((b) => { b.hidden = !!u; });
     document.getElementById('logoutBtn').hidden = !u;
     document.getElementById('adminWrap').hidden = !adm;
