@@ -290,6 +290,7 @@
   const SP_CATS = ['movies', 'series', 'animations', 'anime', 'games', 'music', 'apps'];
   const SP_ALL_CATS = SP_CATS.concat(['services', 'tutorials']);
   let spTab = 'all', spUsers = [], spSeq = 0, spTimer = 0;
+  const panelCtx = { q: qInput, clear: clearQ, close: document.getElementById('spClose'), tabs: spTabs, body: spBody, tab: 'all', users: [], seq: 0, timer: 0, on: () => spPanel.classList.contains('open') };
   const ICON_SEC = '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg>';
   const ICON_NONE = '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4-4M8.5 11h5"/></svg>';
 
@@ -356,35 +357,36 @@
     onMore ? el('button', { type: 'button', class: 'sp-more', onclick: onMore }, tr('نمایش همه') + (n ? ' (' + n.toLocaleString(lang === 'en' ? 'en-US' : 'fa-IR') + ')' : '')) : null);
   const spEmpty = (title, hint) => el('div', { class: 'sp-empty' }, el('div', { html: ICON_NONE }), el('b', {}, title), el('span', {}, hint || ''));
 
-  function renderSearch() {
-    const raw = qInput.value.trim();
+  function renderSearch(c) {
+    c = c || panelCtx;
+    const raw = c.q.value.trim();
     const k = nz(raw).replace(/^@/, '').trim();
     const tokens = k.split(/\s+/).filter(Boolean);
-    clearQ.hidden = !qInput.value;
-    document.getElementById('spClose').hidden = !!qInput.value;
+    c.clear.hidden = !c.q.value;
+    if (c.close) c.close.hidden = !!c.q.value;
 
     const items = state.items.slice();
     const pool = tokens.length ? items.filter((it) => spMatch(it, tokens)).sort((a, b) => spScore(a, k) - spScore(b, k))
       : items.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
     const group = (cat) => pool.filter((it) => it.cat === cat);
     const secs = siteSections().filter((s) => !tokens.length || tokens.every((t) => nz(s.fa + ' ' + (s.kw || '') + ' ' + (s.sub || '')).includes(t)));
-    const users = tokens.length ? spUsers : [];
+    const users = tokens.length ? c.users : [];
     const counts = { all: users.length + pool.length + secs.length, users: users.length, sections: secs.length };
     SP_CATS.forEach((c) => { counts[c] = group(c).length; });
 
     // نوار دسته‌ها
     const tabs = [['all', 'همه'], ['users', 'کاربران']].concat(SP_CATS.map((c) => [c, CATS[c].fa])).concat([['sections', 'بخش‌های سایت']]);
-    spTabs.replaceChildren(...tabs.map(([key, fa]) => {
-      const b = el('button', { type: 'button', class: 'sp-tab', role: 'tab', 'aria-selected': String(spTab === key), onclick: () => { spTab = key; renderSearch(); } },
+    c.tabs.replaceChildren(...tabs.map(([key, fa]) => {
+      const b = el('button', { type: 'button', class: 'sp-tab', role: 'tab', 'aria-selected': String(c.tab === key), onclick: () => { c.tab = key; renderSearch(c); } },
         tr(fa), tokens.length ? el('i', {}, counts[key].toLocaleString(lang === 'en' ? 'en-US' : 'fa-IR')) : null);
       return b;
     }));
-    const sel = spTabs.querySelector('[aria-selected="true"]');
+    const sel = c.tabs.querySelector('[aria-selected="true"]');
     if (sel && sel.scrollIntoView) { try { sel.scrollIntoView({ block: 'nearest', inline: 'center' }); } catch (e) { /* مهم نیست */ } }
 
     const out = [];
-    const goTab = (key) => () => { spTab = key; renderSearch(); spBody.scrollTop = 0; };
-    if (spTab === 'all') {
+    const goTab = (key) => () => { c.tab = key; renderSearch(c); c.body.scrollTop = 0; };
+    if (c.tab === 'all') {
       if (!tokens.length) {
         const fresh = pool.slice(0, 5);
         if (fresh.length) { out.push(spHead(tr('تازه‌ها'))); fresh.forEach((it) => out.push(spItemRow(it))); }
@@ -400,32 +402,33 @@
         if (secs.length) { out.push(spHead(tr('بخش‌های سایت'), secs.length > 4 ? goTab('sections') : null, secs.length)); secs.slice(0, 4).forEach((s) => out.push(spSecRow(s))); }
         if (!counts.all) out.push(spEmpty(tr('چیزی پیدا نشد'), tr('املای دیگه‌ای امتحان کن یا نوع جستجو رو عوض کن.')));
       }
-    } else if (spTab === 'users') {
+    } else if (c.tab === 'users') {
       if (!tokens.length) out.push(spEmpty(tr('جستجوی کاربران'), tr('نام یا آیدی کاربر رو بنویس.')));
       else if (!users.length) out.push(spEmpty(tr('کاربری پیدا نشد'), tr('آیدی رو بدون فاصله و با حروف انگلیسی امتحان کن.')));
       else users.forEach((u) => out.push(spUserRow(u)));
-    } else if (spTab === 'sections') {
+    } else if (c.tab === 'sections') {
       if (!secs.length) out.push(spEmpty(tr('چیزی پیدا نشد'), tr('املای دیگه‌ای امتحان کن یا نوع جستجو رو عوض کن.')));
       else secs.forEach((s) => out.push(spSecRow(s)));
     } else {
-      const g = group(spTab);
+      const g = group(c.tab);
       if (!g.length) out.push(spEmpty(tokens.length ? tr('چیزی پیدا نشد') : tr('هنوز چیزی اضافه نشده'), tokens.length ? tr('املای دیگه‌ای امتحان کن یا نوع جستجو رو عوض کن.') : ''));
       else g.slice(0, 60).forEach((it) => out.push(spItemRow(it)));
     }
-    spBody.replaceChildren(...out);
+    c.body.replaceChildren(...out);
   }
 
-  function spFetchUsers() {
-    clearTimeout(spTimer);
-    const raw = qInput.value.trim();
-    if (!raw || !window.Api || !Api.users) { spUsers = []; return; }
-    const seq = ++spSeq;
-    spTimer = setTimeout(async () => {
+  function spFetchUsers(c) {
+    c = c || panelCtx;
+    clearTimeout(c.timer);
+    const raw = c.q.value.trim();
+    if (!raw || !window.Api || !Api.users) { c.users = []; return; }
+    const seq = ++c.seq;
+    c.timer = setTimeout(async () => {
       let r = [];
       try { r = await Api.users.search(raw); } catch (e) { r = []; }
-      if (seq !== spSeq) return;
-      spUsers = r;
-      if (spPanel.classList.contains('open')) renderSearch();
+      if (seq !== c.seq) return;
+      c.users = r;
+      if (c.on()) renderSearch(c);
     }, 180);
   }
 
@@ -453,7 +456,7 @@
   spOverlay.addEventListener('click', () => closeSearch());
   document.getElementById('spClose').addEventListener('click', () => closeSearch());
   qInput.addEventListener('input', () => { spFetchUsers(); renderSearch(); });
-  clearQ.addEventListener('click', () => { qInput.value = ''; spUsers = []; spSeq++; renderSearch(); qInput.focus(); });
+  clearQ.addEventListener('click', () => { qInput.value = ''; panelCtx.users = []; panelCtx.seq++; renderSearch(); qInput.focus(); });
   document.getElementById('searchForm').addEventListener('submit', (e) => {
     e.preventDefault();
     const first = spBody.querySelector('button.sp-row, a.sp-row');
@@ -2314,14 +2317,31 @@
   acctBtn.addEventListener('click', () => (acctPanel.classList.contains('open') ? closeAcct() : openAcct()));
   acctOv.addEventListener('click', closeAcct);
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && acctPanel.classList.contains('open')) { closeAcct(); acctBtn.focus(); } });
-  document.getElementById('heroSearch').addEventListener('click', openSearch);
+  // نوار جستجوی صفحه‌ی اصلی: همون‌جا تایپ می‌شه و نتایج زیرش میاد
+  (function heroSearch() {
+    const form = document.getElementById('heroForm'), q = document.getElementById('heroQ'), res = document.getElementById('heroRes');
+    const hc = { q, clear: document.getElementById('heroClear'), close: null, tabs: document.getElementById('hTabs'), body: document.getElementById('hBody'), tab: 'all', users: [], seq: 0, timer: 0, on: () => !res.hidden };
+    const sync = () => {
+      const has = !!q.value.trim();
+      form.classList.toggle('has-v', !!q.value);
+      const was = res.hidden;
+      res.hidden = !has;
+      if (has) { renderSearch(hc); if (was) { try { form.scrollIntoView({ block: 'start', behavior: 'smooth' }); } catch (e) { /* مهم نیست */ } } } else { hc.users = []; hc.seq++; hc.clear.hidden = true; }
+    };
+    q.addEventListener('input', () => { spFetchUsers(hc); sync(); });
+    q.addEventListener('focus', () => { q.parentElement.classList.add('is-f'); });
+    hc.clear.addEventListener('click', () => { q.value = ''; hc.tab = 'all'; sync(); q.focus(); });
+    form.addEventListener('click', () => q.focus());
+    form.addEventListener('submit', (e) => { e.preventDefault(); const first = hc.body.querySelector('button.sp-row, a.sp-row'); if (first) first.click(); });
+    q.addEventListener('keydown', (e) => { if (e.key === 'Escape') { q.value = ''; sync(); } });
+  })();
 
   // ---------- پس‌زمینه‌ی هیرو: نقطه‌های متحرک که با خط به هم وصلن ----------
   (function heroNet() {
     const cv = document.getElementById('heroNet'); if (!cv || !cv.getContext) return;
     const hero = cv.parentElement, ctx = cv.getContext('2d');
     const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const COLS = ['255,211,107', '205,160,255', '255,130,185', '130,205,255'];
+    const COLS = ['120,230,255', '150,255,215', '255,255,255', '255,211,107', '130,160,255'];
     let W = 0, H = 0, dpr = 1, pts = [], raf = 0, on = true;
     const mouse = { x: -999, y: -999 };
     const mk = () => ({ x: Math.random() * W, y: Math.random() * H, vx: (Math.random() - .5) * .42, vy: (Math.random() - .5) * .42, r: 1.1 + Math.random() * 1.9, c: COLS[(Math.random() * COLS.length) | 0] });
