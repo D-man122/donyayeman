@@ -1919,7 +1919,7 @@
       return;
     }
     const m = H.match(/^#\/c\/(\w+)$/), mm = H.match(/^#\/m\/([\w%-]+)$/);
-    const hero = document.querySelector('.hero'), home = document.getElementById('home'), cv = document.getElementById('catView'), mv = document.getElementById('movieView');
+    const hero = document.getElementById('heroWrap'), home = document.getElementById('home'), cv = document.getElementById('catView'), mv = document.getElementById('movieView');
     const wasCat = curCat !== null;
     closeSheets();
     mv.hidden = true; curMovie = null;

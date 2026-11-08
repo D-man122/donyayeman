@@ -1258,23 +1258,20 @@ body.editing .fr-row.is-empty .add-card .art svg { width: 24px; height: 24px; }
 .au-eye { inset-inline-end: auto; right: 6px; }
 .p-bio { margin-top: 6px; }
 
-/* --- هیرو جدید: لوگو، جستجو، پس‌زمینه‌ی نقطه‌های متصل، لبه‌ی منحنی --- */
-.hero {
-  position: relative; z-index: 2; overflow: hidden; text-align: center; padding: 34px 20px 86px;
-  background: radial-gradient(120% 100% at 50% 0%, #6a37b0 0%, #43227a 42%, #25114d 100%);
-  border-radius: 0 0 50% 50% / 0 0 44px 44px;
-  box-shadow: 0 26px 44px -16px rgba(18,6,46,.75), 0 6px 14px -6px rgba(18,6,46,.5);
-}
-.hero::before {
-  content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 0; opacity: 1;
-  background: radial-gradient(60% 50% at 50% 38%, rgba(255,211,107,.16), transparent 70%),
-              radial-gradient(80% 60% at 50% 120%, rgba(10,3,30,.65), transparent 70%);
-  box-shadow: inset 0 -30px 60px -30px rgba(8,2,26,.7);
-}
+/* --- مرز منحنی پایین هیرو + بخش جستجو (پس‌زمینه‌ی نقطه‌های متصل) --- */
+.hero-wrap[hidden] { display: none !important; }
+.hero { position: relative; z-index: 2; overflow: hidden; border-radius: 0 0 50% 50% / 0 0 44px 44px; box-shadow: 0 24px 40px -16px rgba(18,6,46,.75), 0 6px 14px -6px rgba(18,6,46,.5); }
 .hero::after { display: none; }
-.orbit, .wave { display: none; }
-.hero > canvas.net { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; }
-.hero > .hero-in { position: relative; z-index: 1; max-width: 560px; margin: 0 auto; }
+.wave { display: none; }
+.find {
+  position: relative; z-index: 1; overflow: hidden; text-align: center; margin-top: -44px; padding: 84px 20px 54px;
+  background: radial-gradient(120% 110% at 50% 0%, #4c2a8c 0%, #2c1557 55%, #1d0d3d 100%);
+  border-radius: 0 0 50% 50% / 0 0 34px 34px;
+  box-shadow: 0 22px 36px -16px rgba(18,6,46,.65);
+}
+.find::before { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(60% 50% at 50% 40%, rgba(255,211,107,.14), transparent 70%); }
+.find > canvas.net { position: absolute; inset: 0; width: 100%; height: 100%; }
+.find > .find-in { position: relative; max-width: 560px; margin: 0 auto; }
 .hero-d {
   display: block; width: auto; height: 96px; margin: 0 auto 6px;
   filter: drop-shadow(0 8px 18px rgba(255,190,60,.45)) drop-shadow(0 2px 0 rgba(0,0,0,.25));
@@ -1283,7 +1280,7 @@ body.editing .fr-row.is-empty .add-card .art svg { width: 24px; height: 24px; }
 }
 @keyframes dMove { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-9px); } }
 @keyframes dShake { 0%,84%,100% { rotate: 0deg; } 86% { rotate: -10deg; } 88% { rotate: 9deg; } 90% { rotate: -7deg; } 92% { rotate: 5deg; } 94% { rotate: -2deg; } }
-.hero p#heroSub { margin: 6px auto 18px; max-width: none; font-size: 21px; font-weight: 700; color: #f1ebff; text-shadow: 0 2px 12px rgba(0,0,0,.4); }
+.find-tag { margin: 6px auto 18px; font-size: 21px; font-weight: 700; color: #f1ebff; text-shadow: 0 2px 12px rgba(0,0,0,.4); }
 .hero-search {
   display: flex; align-items: center; gap: 12px; width: min(100%, 520px); height: 58px; margin: 0 auto; padding: 0 20px;
   border-radius: 999px; cursor: pointer; font: inherit; font-size: 17px; color: #e4dbff; text-align: start;
@@ -1298,9 +1295,10 @@ body.editing .fr-row.is-empty .add-card .art svg { width: 24px; height: 24px; }
 .hero-search svg { flex: none; width: 24px; height: 24px; stroke: #ffd36b; }
 .hero-search b { font-weight: 800; background: linear-gradient(90deg, #ffd36b, #ff7eb6 55%, #b583ff); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent; }
 @media (min-width: 1024px) {
-  .hero { padding: 54px 22px 112px; border-radius: 0 0 50% 50% / 0 0 72px 72px; }
+  .hero { border-radius: 0 0 50% 50% / 0 0 64px 64px; }
+  .find { margin-top: -64px; padding: 110px 22px 70px; border-radius: 0 0 50% 50% / 0 0 48px 48px; }
   .hero-d { height: 124px; }
-  .hero p#heroSub { font-size: 26px; margin-bottom: 24px; }
+  .find-tag { font-size: 26px; margin-bottom: 24px; }
   .hero-search { height: 64px; font-size: 19px; }
 }
 @media (prefers-reduced-motion: reduce) { .hero-d { animation: none; } }
