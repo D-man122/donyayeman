@@ -430,7 +430,7 @@
   }
 
   function openSearch() {
-    closeSheets();
+    closeSheets(); closeAcct();
     if (drawer.classList.contains('open')) setDrawer(false);
     if (chat.classList.contains('open')) closeChat();
     spPanel.classList.add('open'); spOverlay.classList.add('open');
@@ -534,7 +534,7 @@
   const scrollChat = () => { chatBody.scrollTop = chatBody.scrollHeight; };
 
   function openChat() {
-    closeSearch(false);
+    closeSearch(false); closeAcct();
     chat.classList.add('open');
     chat.setAttribute('aria-hidden', 'false');
     setTimeout(() => chatInput.focus(), 320);
@@ -705,6 +705,7 @@
   const overlay = document.getElementById('overlay');
   const closeBtn = document.getElementById('closeDrawer');
   const setDrawer = (open) => {
+    if (open) closeAcct();
     if (open) closeSearch(false);
     drawer.classList.toggle('open', open);
     overlay.classList.toggle('open', open);
@@ -2177,7 +2178,7 @@
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/, USER_RE = /^[a-z0-9_.]{3,30}$/;
   const I_EYE = SVG('<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>');
   function openAuth(tab) {
-    setDrawer(false);
+    setDrawer(false); closeAcct();
     let mode = tab === 'login' ? 'login' : 'signup';
     const draw = () => {
       const su = mode === 'signup';
@@ -2246,7 +2247,7 @@
   function openProfile() {
     const u = state.user;
     if (!u) { openAuth('login'); return; }
-    setDrawer(false);
+    setDrawer(false); closeAcct();
     let avatar = u.avatar || '';
     const prev = el('div', { class: 'pf-av' });
     const drawAv = () => {
@@ -2295,6 +2296,75 @@
   document.querySelector('.edit-badge').addEventListener('click', openProfile);
   document.querySelector('.p-avatar').addEventListener('click', () => { if (state.user) openProfile(); });
 
+
+  // ---------- پنل حساب کاربری (جدا از منو) ----------
+  const acctBtn = document.getElementById('acctBtn'), acctPanel = document.getElementById('acctPanel'), acctOv = document.getElementById('acctOv');
+  function openAcct() {
+    closeSheets(); closeSearch(false);
+    if (drawer.classList.contains('open')) setDrawer(false);
+    if (chat.classList.contains('open')) closeChat();
+    acctPanel.classList.add('open'); acctOv.classList.add('open');
+    acctPanel.setAttribute('aria-hidden', 'false'); acctBtn.setAttribute('aria-expanded', 'true');
+  }
+  function closeAcct() {
+    if (!acctPanel) return;
+    acctPanel.classList.remove('open'); acctOv.classList.remove('open');
+    acctPanel.setAttribute('aria-hidden', 'true'); acctBtn.setAttribute('aria-expanded', 'false');
+  }
+  acctBtn.addEventListener('click', () => (acctPanel.classList.contains('open') ? closeAcct() : openAcct()));
+  acctOv.addEventListener('click', closeAcct);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && acctPanel.classList.contains('open')) { closeAcct(); acctBtn.focus(); } });
+  document.getElementById('heroSearch').addEventListener('click', openSearch);
+
+  // ---------- پس‌زمینه‌ی هیرو: نقطه‌های متحرک که با خط به هم وصلن ----------
+  (function heroNet() {
+    const cv = document.getElementById('heroNet'); if (!cv || !cv.getContext) return;
+    const hero = cv.parentElement, ctx = cv.getContext('2d');
+    const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const COLS = ['255,211,107', '205,160,255', '255,130,185', '130,205,255'];
+    let W = 0, H = 0, dpr = 1, pts = [], raf = 0, on = true;
+    const mouse = { x: -999, y: -999 };
+    const mk = () => ({ x: Math.random() * W, y: Math.random() * H, vx: (Math.random() - .5) * .42, vy: (Math.random() - .5) * .42, r: 1.1 + Math.random() * 1.9, c: COLS[(Math.random() * COLS.length) | 0] });
+    function size() {
+      const r = hero.getBoundingClientRect(); if (!r.width) return;
+      dpr = Math.min(window.devicePixelRatio || 1, 2); W = r.width; H = r.height;
+      cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const n = Math.round(Math.min(90, Math.max(30, W * H / 8500)));
+      while (pts.length < n) pts.push(mk());
+      pts.length = n;
+      if (reduce) draw();
+    }
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+      const L = W < 600 ? 105 : 140;
+      for (let i = 0; i < pts.length; i++) {
+        const a = pts[i];
+        for (let j = i + 1; j < pts.length; j++) {
+          const b = pts[j], dx = a.x - b.x, dy = a.y - b.y, d = Math.hypot(dx, dy);
+          if (d < L) { ctx.strokeStyle = 'rgba(' + a.c + ',' + ((1 - d / L) * .5).toFixed(3) + ')'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke(); }
+        }
+        const dm = Math.hypot(a.x - mouse.x, a.y - mouse.y);
+        if (dm < 150) { ctx.strokeStyle = 'rgba(255,255,255,' + ((1 - dm / 150) * .6).toFixed(3) + ')'; ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(mouse.x, mouse.y); ctx.stroke(); }
+      }
+      for (const p of pts) { ctx.fillStyle = 'rgba(' + p.c + ',.95)'; ctx.shadowColor = 'rgba(' + p.c + ',.9)'; ctx.shadowBlur = 8; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.2832); ctx.fill(); }
+      ctx.shadowBlur = 0;
+    }
+    function tick() {
+      for (const p of pts) {
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < -10) p.x = W + 10; else if (p.x > W + 10) p.x = -10;
+        if (p.y < -10) p.y = H + 10; else if (p.y > H + 10) p.y = -10;
+      }
+      draw(); raf = on && !document.hidden ? requestAnimationFrame(tick) : 0;
+    }
+    function start() { if (!reduce && !raf && on && !document.hidden) raf = requestAnimationFrame(tick); }
+    hero.addEventListener('pointermove', (e) => { const r = hero.getBoundingClientRect(); mouse.x = e.clientX - r.left; mouse.y = e.clientY - r.top; });
+    hero.addEventListener('pointerleave', () => { mouse.x = mouse.y = -999; });
+    if ('ResizeObserver' in window) new ResizeObserver(size).observe(hero); else window.addEventListener('resize', size);
+    if ('IntersectionObserver' in window) new IntersectionObserver((es) => { on = es[0].isIntersecting; if (on) start(); }).observe(hero);
+    document.addEventListener('visibilitychange', start);
+    size(); start();
+  })();
   // ---------- حساب کاربری و حالت ویرایش ----------
   const fab = document.getElementById('fab');
   function setEditing(on) {
@@ -2309,6 +2379,8 @@
     document.querySelector('.p-id').textContent = u ? '@' + (u.username || u.email.split('@')[0]) : '@user_id';
     document.getElementById('roleBadge').hidden = !adm;
     document.querySelector('.edit-badge').hidden = !u;
+    const ab = document.querySelector('.ab-av'), abBtn = document.getElementById('acctBtn');
+    if (ab) { ab.hidden = !(u && u.avatar); if (u && u.avatar) ab.src = u.avatar; abBtn.classList.toggle('has-av', !!(u && u.avatar)); }
     const av = document.querySelector('.p-avatar');
     av.classList.toggle('has-img', !!(u && u.avatar));
     av.style.backgroundImage = u && u.avatar ? 'url("' + u.avatar.replace(/"/g, '%22') + '")' : '';
