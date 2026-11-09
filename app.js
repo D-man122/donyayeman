@@ -2413,6 +2413,7 @@
     document.querySelector('.p-name').textContent = u ? u.name : tr('نام کاربر');
     document.querySelector('.p-id').textContent = u ? '@' + (u.username || u.email.split('@')[0]) : '@user_id';
     document.getElementById('roleBadge').hidden = !adm;
+    document.getElementById('acctPanel').classList.toggle('guest', !u);
     document.querySelector('.edit-badge').hidden = !u;
     const ab = document.querySelector('.ab-av'), abBtn = document.getElementById('acctBtn');
     if (ab) { ab.hidden = !(u && u.avatar); if (u && u.avatar) ab.src = u.avatar; abBtn.classList.toggle('has-av', !!(u && u.avatar)); }
