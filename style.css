@@ -1411,12 +1411,7 @@ main#home > section:first-child { padding-top: 38px; }
 .start h2, .start-sub { text-align: center; }
 .start h2::after { margin-inline: auto; }
 .start-sub { color: var(--muted); margin: 8px 0 24px; line-height: 1.9; }
-.start-grid { display: grid; gap: 18px; grid-template-columns: 1fr; max-width: 900px; margin: 0 auto; }
-@media (min-width: 760px) { .start-grid { grid-template-columns: 1fr 1fr; } }
-.s-card { --c: #4f7cf6; --c2: #e4ebff; background: var(--card); border-radius: 22px; padding: 26px 22px 22px; text-align: center; box-shadow: 0 14px 44px -14px rgba(40,20,90,.28); }
-.s-amber { --c: #ffb524; --c2: #fff0cc; }
-:root[data-theme="dark"] .s-card { --c2: rgba(79,124,246,.24); }
-:root[data-theme="dark"] .s-amber { --c2: rgba(255,181,36,.22); }
+.s-card { --c: #4f7cf6; --c2: color-mix(in srgb, var(--c) 16%, var(--card)); background: var(--card); border-radius: 22px; padding: 26px 22px 22px; text-align: center; box-shadow: 0 14px 44px -14px rgba(40,20,90,.28); }
 .s-art { display: block; width: min(100%, 240px); height: auto; margin: 0 auto 8px; overflow: visible; }
 .s-art .blob { fill: var(--c2); stroke: none; }
 .s-art .blob2 { fill: var(--c); opacity: .3; stroke: none; }
@@ -1433,3 +1428,22 @@ main#home > section:first-child { padding-top: 38px; }
 .s-amber small { color: #b06800; }
 :root[data-theme="dark"] .s-amber small { color: var(--gold); }
 .hero-search { scroll-margin-top: 104px; }
+
+/* --- «از کجا شروع کنیم؟»: ردیف اسکرولی --- */
+main section.start { max-width: none; padding-inline: 0; }
+.start-head { max-width: 1160px; margin: 0 auto; padding-inline: 20px; }
+.start-wrap { position: relative; }
+.start-grid { display: flex; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain;
+  padding: 8px max(20px, calc((100% - 1160px) / 2 + 20px)) 26px; scroll-padding-inline: max(20px, calc((100% - 1160px) / 2 + 20px)); }
+.start-grid::-webkit-scrollbar { display: none; }
+.start-grid:focus-visible { outline: 3px solid var(--gold); outline-offset: -3px; }
+.start-grid .s-card { flex: none; width: min(78vw, 280px); scroll-snap-align: start; display: flex; flex-direction: column; align-items: center; }
+.start-grid .s-card p { flex: 1; }
+.st-nav { display: none; position: absolute; top: 40%; z-index: 3; width: 46px; height: 46px; border: 0; border-radius: 50%; cursor: pointer; place-items: center;
+  background: var(--card); box-shadow: 0 10px 24px -6px rgba(30,10,70,.45); }
+.st-nav svg { width: 22px; height: 22px; stroke: var(--ink); }
+.st-nav:hover { transform: scale(1.06); }
+.st-nav[disabled] { opacity: .35; cursor: default; }
+.st-prev { inset-inline-start: 14px; }
+.st-next { inset-inline-end: 14px; }
+@media (hover: hover) and (min-width: 760px) { .st-nav { display: grid; } }

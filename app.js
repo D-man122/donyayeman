@@ -2336,6 +2336,21 @@
     q.addEventListener('keydown', (e) => { if (e.key === 'Escape') { q.value = ''; sync(); } });
   })();
 
+  // ردیف اسکرولی «از کجا شروع کنیم؟»
+  (function startRow() {
+    const row = document.getElementById('startRow'), pv = document.getElementById('stPrev'), nx = document.getElementById('stNext');
+    if (!row) return;
+    const step = () => Math.max(240, row.clientWidth * .7);
+    const upd = () => {
+      const max = row.scrollWidth - row.clientWidth, x = Math.abs(row.scrollLeft);
+      pv.disabled = x < 4; nx.disabled = x > max - 4;
+    };
+    // در صفحه‌ی راست‌به‌چپ «قبلی» یعنی برگشت به سمت راست
+    pv.addEventListener('click', () => row.scrollBy({ left: step(), behavior: 'smooth' }));
+    nx.addEventListener('click', () => row.scrollBy({ left: -step(), behavior: 'smooth' }));
+    row.addEventListener('scroll', upd, { passive: true }); window.addEventListener('resize', upd); upd();
+  })();
+
   // ---------- پس‌زمینه‌ی هیرو: نقطه‌های متحرک که با خط به هم وصلن ----------
   (function heroNet() {
     const cv = document.getElementById('heroNet'); if (!cv || !cv.getContext) return;
