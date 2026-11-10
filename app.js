@@ -869,6 +869,11 @@
     };
     set('cEmail', s.email ? 'mailto:' + s.email : '');
     set('cTg', s.telegram); set('cIg', s.instagram);
+    document.querySelectorAll('.f-social a[data-k]').forEach((a) => {
+      const href = a.dataset.k === 'email' ? (s.email && !/you@example\.com/.test(s.email) ? 'mailto:' + s.email : '') : (s[a.dataset.k] || '');
+      if (href) { a.href = href; a.target = '_blank'; a.rel = 'noopener noreferrer'; a.classList.remove('off'); }
+      else { a.href = '#'; a.removeAttribute('target'); a.classList.add('off'); }
+    });
     const nm = document.querySelector('.chat-title b'); if (nm) nm.textContent = s.aiName || 'دستیار دنیای من';
     const sb = document.querySelector('.chat-title small'); if (sb) sb.textContent = 'دستیار سایت';
     const g = document.querySelector('#chatBody .msg.bot');
@@ -2140,6 +2145,9 @@
     const fAiName = el('input', { id: 's-ainame', type: 'text', maxlength: 40, value: s.aiName || '' });
     const fAiHello = el('textarea', { id: 's-aihello', rows: 2, maxlength: 300 }, s.aiHello || '');
     const fAiFaq = el('textarea', { id: 's-aifaq', rows: 5, maxlength: 4000, placeholder: 'قیمت، هزینه | قیمت‌ها بسته به پروژه‌ست؛ پیام بده.' }, s.aiFaq || '');
+    const SOC = [['linkedin', 'لینکدین', 'https://linkedin.com/in/'], ['facebook', 'فیسبوک', 'https://facebook.com/'], ['x', 'ایکس (توییتر)', 'https://x.com/'], ['youtube', 'یوتیوب', 'https://youtube.com/@'], ['aparat', 'آپارات', 'https://aparat.com/'], ['pinterest', 'پینترست', 'https://pinterest.com/'], ['whatsapp', 'واتساپ', 'https://wa.me/'], ['tiktok', 'تیک‌تاک', 'https://tiktok.com/@'], ['github', 'گیت‌هاب', 'https://github.com/'], ['discord', 'دیسکورد', 'https://discord.gg/'], ['spotify', 'اسپاتیفای', 'https://open.spotify.com/']];
+    const socF = SOC.map(([k]) => el('input', { id: 's-' + k, type: 'text', class: 'ltr', value: s[k] || '' }));
+    const socE = SOC.map(() => el('div', { class: 'ferr' }));
     const eMail = el('div', { class: 'ferr' }), eTg = el('div', { class: 'ferr' }), eIg = el('div', { class: 'ferr' });
     const norm = (v, base) => {
       v = v.trim();
@@ -2156,10 +2164,12 @@
       if (mail && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(mail)) { eMail.textContent = tr('ایمیل معتبر نیست.'); bad = true; }
       if (tg === null) { eTg.textContent = tr('آدرس معتبر نیست.'); bad = true; }
       if (ig === null) { eIg.textContent = tr('آدرس معتبر نیست.'); bad = true; }
+      const socV = SOC.map(([k, , base], i) => { socE[i].textContent = ''; const v = norm(socF[i].value, base); if (v === null) { socE[i].textContent = tr('آدرس معتبر نیست.'); bad = true; } return v; });
       if (bad) return;
       saveBtn.disabled = true;
       try {
-        state.site = await Api.site.save({ heroSub: fHero.value, about: fAbout.value, email: mail, telegram: tg, instagram: ig, aiName: fAiName.value, aiHello: fAiHello.value, aiFaq: fAiFaq.value });
+        const extra = {}; SOC.forEach(([k], i) => { extra[k] = socV[i]; });
+        state.site = await Api.site.save({ ...extra, heroSub: fHero.value, about: fAbout.value, email: mail, telegram: tg, instagram: ig, aiName: fAiName.value, aiHello: fAiHello.value, aiFaq: fAiFaq.value });
         applySite(); closeModal(); toast(tr('ذخیره شد.'));
       } catch (e) { toast(errMsg(e)); saveBtn.disabled = false; }
     });
@@ -2170,6 +2180,7 @@
         fld(tr('ایمیل (مثلاً you@example.com)'), 's-mail', fMail, eMail),
         fld(tr('تلگرام (آدرس کامل یا @آیدی)'), 's-tg', fTg, eTg),
         fld(tr('اینستاگرام (آدرس کامل یا @آیدی)'), 's-ig', fIg, eIg),
+        ...SOC.map(([k, fa], i) => fld(tr(fa) + ' (' + tr('آدرس کامل یا @آیدی') + ')', 's-' + k, socF[i], socE[i])),
         fld(tr('نام دستیار'), 's-ainame', fAiName), fld(tr('پیام خوش‌آمدگویی دستیار'), 's-aihello', fAiHello),
         fld(tr('پاسخ‌های آماده‌ی دستیار (هر خط: کلیدواژه‌ها با ویرگول | پاسخ)'), 's-aifaq', fAiFaq)),
       actions: [el('button', { type: 'button', class: 'btn ghost', onclick: () => closeModal() }, tr('انصراف')), saveBtn]

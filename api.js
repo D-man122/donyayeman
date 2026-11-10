@@ -419,7 +419,7 @@
     var DEFAULT_SITE = {
       heroSub: 'فیلم، سریال، انیمیشن، انیمه، بازی، موزیک و برنامه، همه توی یه جا.',
       about: 'اینجا یه معرفی کوتاه از خودت بنویس: کی هستی و این سایت رو برای چی ساختی. دو سه جمله کافیه.',
-      email: 'you@example.com', telegram: '', instagram: '',
+      email: 'you@example.com', telegram: '', instagram: '', linkedin: '', facebook: '', x: '', youtube: '', aparat: '', pinterest: '', whatsapp: '', tiktok: '', github: '', discord: '', spotify: '',
       aiName: 'دستیار دنیای من', aiHello: 'سلام! من دستیار «دنیای من» هستم. درباره‌ی فیلم‌ها، موزیک، خدمات و آموزش‌ها از من بپرس.', aiFaq: ''
     };
     function cleanSite(p) {
@@ -433,7 +433,7 @@
         if (e && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e)) throw fail('invalid');
         o.email = e;
       }
-      ['telegram', 'instagram'].forEach(function (k) {
+      ['telegram', 'instagram', 'linkedin', 'facebook', 'x', 'youtube', 'aparat', 'pinterest', 'whatsapp', 'tiktok', 'github', 'discord', 'spotify'].forEach(function (k) {
         if (k in p) {
           var v = String(p[k] || '').trim();
           if (v && !HTTP_RE.test(v)) throw fail('invalid');
