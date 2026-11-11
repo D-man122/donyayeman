@@ -1511,3 +1511,19 @@ main section.start { max-width: none; padding-inline: 0; }
 .acct { width: min(calc(100vw - 24px), 300px); }
 .acct.guest .pbtn { min-height: 46px; font-size: 15px; }
 .f-social a[data-k] { background: none !important; border: 0 !important; box-shadow: none !important; }
+
+/* --- لبه‌ی پایین بخش جستجو: بدون مرز، محو در سایه --- */
+.cw2 { filter: none; }
+.find { clip-path: none; padding-bottom: 110px;
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 62%, transparent 100%); mask-image: linear-gradient(180deg, #000 0%, #000 62%, transparent 100%); }
+.hs-res { margin-bottom: 0; }
+@media (min-width: 1024px) { .find { padding-bottom: 140px; } }
+
+/* --- تازه‌ها: برگه‌ی گرد، پس‌زمینه‌ی عنوان فقط دور کلمه --- */
+main section#fresh { max-width: 1180px; padding: 6px 12px 10px; }
+#fresh .fresh-panel { --fp: 18px; background: none; border: 0; box-shadow: none; border-radius: 0; overflow: visible; padding: 0; }
+#fresh .sec-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; padding: 0 !important; margin: 0; }
+#fresh .sec-head h2 { margin: 0; padding: 11px 26px 12px; background: #2f1c5e; color: #fff; border-radius: 20px 20px 0 0; font-size: 19px; line-height: 1.4; }
+#fresh .sec-head h2::after { display: none; }
+#fresh .fresh-rows { background: linear-gradient(180deg, #2f1c5e 0%, #1b0e37 100%); border-radius: 28px; border-start-start-radius: 0; padding: 8px 0 10px; overflow: hidden; box-shadow: 0 20px 40px -14px rgba(42,26,74,.5); }
+@media (min-width: 1024px) { #fresh .fresh-panel { --fp: 30px; } #fresh .sec-head h2 { font-size: 22px; padding-inline: 34px; } }
