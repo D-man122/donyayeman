@@ -906,24 +906,23 @@
   const addCard = (fn) => el('button', { type: 'button', class: 'poster add-card', 'aria-label': tr('افزودن'), onclick: fn },
     el('span', { class: 'art', html: I_PLUS }), el('span', { class: 'tag' }, tr('افزودن')));
 
-  // تازه‌ها: چیپ‌های دسته + یه ردیف اسکرولی از جدیدترین‌ها
+  // تازه‌ها: برگه‌ی گرد با ردیف اسکرولی برای هر دسته
   const FRESH_CATS = ['movies', 'series', 'animations', 'anime', 'games', 'music', 'apps'];
-  let freshTab = 'all';
   function renderFresh() {
-    const chips = document.getElementById('freshChips'), row = document.getElementById('freshRow'), all = document.getElementById('freshAll');
+    const host = document.getElementById('freshRows');
     const rank = (a, b) => (b.fresh ? 1 : 0) - (a.fresh ? 1 : 0) || (b.createdAt || 0) - (a.createdAt || 0);
-    const by = (cat) => state.items.filter((i) => i.cat === cat).sort(rank);
-    const counts = {}; FRESH_CATS.forEach((c) => { counts[c] = by(c).length; });
-    const visible = FRESH_CATS.filter((c) => counts[c] || state.editing);
-    if (freshTab !== 'all' && !visible.includes(freshTab)) freshTab = 'all';
-    const mkChip = (key, label, icon) => el('button', { type: 'button', role: 'tab', class: 'fr-chip', 'aria-selected': String(freshTab === key),
-      onclick: () => { freshTab = key; renderFresh(); } }, icon ? el('span', { class: 'fr-ci', html: icon }) : '', label);
-    chips.replaceChildren(mkChip('all', tr('همه'), ''), ...visible.map((c) => mkChip(c, tr(CATS[c].fa), catIcon(c))));
-    const list = (freshTab === 'all' ? FRESH_CATS.flatMap(by).sort(rank) : by(freshTab)).slice(0, 18);
-    const presetCat = freshTab === 'all' ? 'movies' : freshTab;
-    row.replaceChildren(addCard(() => openItemForm(null, { cat: presetCat, fresh: true })), ...list.map(posterEl));
-    if (!list.length) row.append(el('p', { class: 'empty fr-none' }, tr('هنوز موردی در این بخش نیست.')));
-    all.hidden = freshTab === 'all'; all.href = '#/c/' + freshTab;
+    const rows = FRESH_CATS.map((cat) => {
+      const c = CATS[cat];
+      const list = state.items.filter((i) => i.cat === cat).sort(rank).slice(0, 14);
+      return el('div', { class: 'fr-row' + (list.length ? '' : ' is-empty') },
+        el('div', { class: 'fr-head' },
+          el('span', { class: 'fr-ic ' + c.cls, html: catIcon(cat) }),
+          el('h3', {}, tr(c.fa)),
+          el('a', { class: 'fr-all', href: '#/c/' + cat }, tr('همه'), el('span', { html: I_CHEV }))),
+        el('div', { class: 'row' }, addCard(() => openItemForm(null, { cat, fresh: true })), ...list.map(posterEl)));
+    });
+    host.replaceChildren(...rows);
+    if (!state.items.length) host.append(el('p', { class: 'empty fr-none' }, tr('هنوز موردی در تازه‌ها نیست.')));
   }
 
   let curCat = null, curGenre = '', bnTimer = null;
@@ -2444,7 +2443,7 @@
     if (!adm && state.editing) setEditing(false);
   }
   fab.addEventListener('click', () => { setEditing(!state.editing); toast(tr(state.editing ? 'حالت ویرایش روشن شد.' : 'حالت ویرایش خاموش شد.')); });
-  document.getElementById('addFresh').addEventListener('click', () => openItemForm(null, { cat: freshTab === 'all' ? 'movies' : freshTab, fresh: true }));
+  document.getElementById('addFresh').addEventListener('click', () => openItemForm(null, { fresh: true }));
   document.querySelectorAll('.ed-btn[data-act="edit-site"]').forEach((b) => b.addEventListener('click', openSiteForm));
   document.getElementById('logoutBtn').addEventListener('click', async () => {
     try { await Api.auth.logout(); } catch (e) { /* مهم نیست */ }
