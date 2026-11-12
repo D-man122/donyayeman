@@ -205,7 +205,7 @@
   "جستجو": "Search",
   "جستجو...": "Search...",
   "خانه و دسته‌بندی‌ها": "Home and categories",
-  "ویرایش پروفایل": "Edit profile",
+  "ویرایش پروفایل": "Edit profile", "حساب من": "My account",
   "پاک کردن": "Clear",
   "پروفایل و دسته‌بندی‌ها": "Profile and categories",
   "چیزی پیدا نشد": "Nothing found",
@@ -464,13 +464,12 @@
   });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && spPanel.classList.contains('open')) closeSearch(); });
 
-  // نوار پایین: خدمات، آموزش‌ها و سرگرمی (منوی بازشو)، دستیار و بازی (صفحه‌ی مستقیم)
+  // نوار پایین: خدمات، آموزش‌ها و سرگرمی (منوی بازشو)، دستیار و حساب من
   const bbItems = [...document.querySelectorAll('.bb-item')];
   bbItems[3].dataset.act = 'fun'; bbItems[3].setAttribute('aria-haspopup', 'true'); bbItems[3].setAttribute('aria-expanded', 'false');
-  bbItems[4].dataset.act = 'nav'; bbItems[4].dataset.nav = '#/c/games';
   const sheets = { services: document.getElementById('sheet-services'), tutorials: document.getElementById('sheet-tutorials'), fun: document.getElementById('sheet-fun') };
   function markBottom() {
-    const k = curCat === 'services' ? 'services' : curCat === 'tutorials' ? 'tutorials' : curCat === 'games' ? 'nav' : curCat ? 'fun' : '';
+    const k = curCat === 'services' ? 'services' : curCat === 'tutorials' ? 'tutorials' : curCat ? 'fun' : '';
     bbItems.forEach((x) => { if (k && x.dataset.act === k) x.setAttribute('aria-current', 'page'); else x.removeAttribute('aria-current'); });
   }
   function closeSheets() {
@@ -496,6 +495,7 @@
     e.preventDefault();
     const act = a.dataset.act;
     if (act === 'chat') { closeSheets(); openChat(); return; }
+    if (act === 'account') { closeSheets(); if (acctPanel.classList.contains('open')) closeAcct(); else openAcct(true); return; }
     if (act === 'nav') { closeSheets(); location.hash = a.dataset.nav; return; }
     if (sheets[act]) {
       const willOpen = !sheets[act].classList.contains('open');
@@ -2313,10 +2313,11 @@
 
   // ---------- پنل حساب کاربری (جدا از منو) ----------
   const acctBtn = document.getElementById('acctBtn'), acctPanel = document.getElementById('acctPanel'), acctOv = document.getElementById('acctOv');
-  function openAcct() {
+  function openAcct(fromBar) {
     closeSheets(); closeSearch(false);
     if (drawer.classList.contains('open')) setDrawer(false);
     if (chat.classList.contains('open')) closeChat();
+    acctPanel.classList.toggle('up', !!fromBar);
     acctPanel.classList.add('open'); acctOv.classList.add('open');
     acctPanel.setAttribute('aria-hidden', 'false'); acctBtn.setAttribute('aria-expanded', 'true');
   }
@@ -2426,6 +2427,8 @@
     document.getElementById('roleBadge').hidden = !adm;
     document.getElementById('acctPanel').classList.toggle('guest', !u);
     document.querySelector('.edit-badge').hidden = !u;
+    const bav = document.querySelector('.bb-av');
+    if (bav) { bav.hidden = !(u && u.avatar); if (u && u.avatar) bav.src = u.avatar; document.getElementById('bbAcct').classList.toggle('has-av', !!(u && u.avatar)); }
     const ab = document.querySelector('.ab-av'), abBtn = document.getElementById('acctBtn');
     if (ab) { ab.hidden = !(u && u.avatar); if (u && u.avatar) ab.src = u.avatar; abBtn.classList.toggle('has-av', !!(u && u.avatar)); }
     const av = document.querySelector('.p-avatar');
